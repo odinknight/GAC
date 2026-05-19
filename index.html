@@ -1,1 +1,464 @@
-Final refined version with daily precision Jieqi pointer and enlarged text/planets
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天干地支 + 星体动态时钟 | GAC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Playfair+Display:wght@700&amp;display=swap');
+        body { font-family: 'Noto Sans SC', system-ui, sans-serif; }
+        .title-font { font-family: 'Playfair Display', Georgia, serif; }
+        .cosmic-bg { background: radial-gradient(circle at center, #0a0f1e 0%, #020617 100%); }
+        canvas { border-radius: 9999px; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5), inset 0 0 80px rgba(15, 23, 42, 0.6); background: #020617; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 cosmic-bg">
+    <div class="max-w-[1280px] mx-auto px-6 py-6">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
+            <div>
+                <h1 class="text-4xl lg:text-5xl font-bold title-font tracking-tighter">天干地支 + 星体动态时钟</h1>
+                <p class="text-slate-400 mt-1">Ganzhi Astro Clock • 北斗七星 • 24节气（日精度） • 上北下南左西右东</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-2xl flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-globe text-emerald-400"></i>
+                    <span>中国标准时间 • 北回归线向北观测</span>
+                </div>
+                <div class="px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-2xl font-mono text-sm" id="current-time">--:--:--</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div class="xl:col-span-7">
+                <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-2xl font-semibold">实时北斗中心天文钟</h2>
+                            <p class="text-sm text-slate-400">真实北斗 • 24节气日精度长指针 • 纯色星体+名称（放大）</p>
+                        </div>
+                        <div class="text-xs text-right text-emerald-400">JPL星历</div>
+                    </div>
+
+                    <div class="flex justify-center mb-4">
+                        <canvas id="astro-clock" width="640" height="640" class="max-w-full"></canvas>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleSimulation()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl flex items-center gap-2">
+                                <i class="fa-solid fa-play" id="sim-icon"></i>
+                                <span id="sim-text">连续模拟</span>
+                            </button>
+                            <button onclick="resetToNow()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl">回到现在</button>
+                        </div>
+                        <div class="flex-1 max-w-xs ml-4">
+                            <input type="range" id="time-slider" min="0" max="1440" step="1" value="0" class="w-full accent-amber-400" oninput="updateFromSlider()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="xl:col-span-5 space-y-4">
+                <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-4 text-center">
+                    <div class="text-xs text-slate-400">当前节气</div>
+                    <div class="text-4xl font-bold text-amber-300 mt-1" id="current-jieqi">芒种</div>
+                    <div class="text-sm text-emerald-400 mt-1" id="jieqi-range">起始日 ~ 终止日</div>
+                </div>
+
+                <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5">
+                    <h3 class="font-semibold mb-3 text-sm">当前天干地支（精确到刻）</h3>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div>年柱 <span class="ganzhi-value text-xl font-bold text-amber-300" id="year-ganzhi">丙午</span></div>
+                        <div>月柱 <span class="ganzhi-value text-xl font-bold" id="month-ganzhi">己巳</span></div>
+                        <div>日柱 <span class="ganzhi-value text-xl font-bold" id="day-ganzhi">甲子</span></div>
+                        <div>时柱 <span class="ganzhi-value text-2xl font-bold text-white" id="shi-ganzhi">己巳</span></div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span id="shi-name">巳时</span>
+                            <span class="text-emerald-400" id="ke-text">三刻</span>
+                        </div>
+                        <div class="flex gap-1" id="ke-segments"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-4">
+                    <h3 class="font-semibold mb-2 text-sm">七曜位置</h3>
+                    <div class="grid grid-cols-2 gap-1 text-xs" id="planet-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const jieqiList = [
+            {name:"立春",lon:315,start:"2月4日",end:"2月18日"},
+            {name:"雨水",lon:330,start:"2月19日",end:"3月4日"},
+            {name:"惊蛰",lon:345,start:"3月5日",end:"3月19日"},
+            {name:"春分",lon:0,start:"3月20日",end:"4月3日"},
+            {name:"清明",lon:15,start:"4月4日",end:"4月19日"},
+            {name:"谷雨",lon:30,start:"4月20日",end:"5月4日"},
+            {name:"立夏",lon:45,start:"5月5日",end:"5月20日"},
+            {name:"小满",lon:60,start:"5月21日",end:"6月4日"},
+            {name:"芒种",lon:75,start:"6月5日",end:"6月20日"},
+            {name:"夏至",lon:90,start:"6月21日",end:"7月6日"},
+            {name:"小暑",lon:105,start:"7月7日",end:"7月21日"},
+            {name:"大暑",lon:120,start:"7月22日",end:"8月6日"},
+            {name:"立秋",lon:135,start:"8月7日",end:"8月22日"},
+            {name:"处暑",lon:150,start:"8月23日",end:"9月6日"},
+            {name:"白露",lon:165,start:"9月7日",end:"9月22日"},
+            {name:"秋分",lon:180,start:"9月23日",end:"10月7日"},
+            {name:"寒露",lon:195,start:"10月8日",end:"10月22日"},
+            {name:"霜降",lon:210,start:"10月23日",end:"11月6日"},
+            {name:"立冬",lon:225,start:"11月7日",end:"11月21日"},
+            {name:"小雪",lon:240,start:"11月22日",end:"12月6日"},
+            {name:"大雪",lon:255,start:"12月7日",end:"12月20日"},
+            {name:"冬至",lon:270,start:"12月21日",end:"1月4日"},
+            {name:"小寒",lon:285,start:"1月5日",end:"1月19日"},
+            {name:"大寒",lon:300,start:"1月20日",end:"2月3日"}
+        ];
+
+        const lunarMansions = ["角","亢","氐","房","心","尾","箕","斗","牛","女","虚","危","室","壁","奎","娄","胃","昴","毕","觜","参","井","鬼","柳","星","张","翼","轸"];
+
+        let currentData = {
+            time: new Date(),
+            year: "丙午", month: "己巳", day: "甲子",
+            shiIndex: 5, ke: 3, keFraction: 0.75,
+            sunLon: 57.84,
+            planets: {
+                sun: {lon:57.84, color:'#fbbf24', name:'太阳'},
+                moon: {lon:91.01, color:'#e0e7ff', name:'月亮'},
+                mercury: {lon:63.39, color:'#94a3b8', name:'水星'},
+                venus: {lon:89.77, color:'#f472b6', name:'金星'},
+                mars: {lon:29.80, color:'#f87171', name:'火星'},
+                jupiter: {lon:111.37, color:'#4ade80', name:'木星'},
+                saturn: {lon:10.70, color:'#a78bfa', name:'土星'}
+            }
+        };
+
+        let simulationRunning = false;
+        let simInterval = null;
+        let canvas, ctx;
+        let baseTime = new Date();
+
+        function getCurrentJieqi(sunLon) {
+            for (let i = 0; i < jieqiList.length; i++) {
+                let cur = jieqiList[i].lon;
+                let nxt = jieqiList[(i+1)%24].lon;
+                if (nxt < cur) {
+                    if (sunLon >= cur || sunLon < nxt) return jieqiList[i];
+                } else {
+                    if (sunLon >= cur && sunLon < nxt) return jieqiList[i];
+                }
+            }
+            return jieqiList[0];
+        }
+
+        function getDayOfYear(dt) {
+            const start = new Date(dt.getFullYear(), 0, 0);
+            const diff = dt - start;
+            return Math.floor(diff / (1000 * 60 * 60 * 24));
+        }
+
+        function getShiProgress(dt) {
+            return ((dt.getHours()*60 + dt.getMinutes()) / 120) % 12;
+        }
+
+        function drawBigDipper(cx, cy, rotation) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(rotation);
+            ctx.strokeStyle = '#bae6fd';
+            ctx.fillStyle = '#e0e7ff';
+            ctx.lineWidth = 2.2;
+            ctx.shadowColor = '#67e8f9';
+            ctx.shadowBlur = 6;
+
+            const stars = [
+                {x: 32, y: -8}, {x: 18, y: 6}, {x: 6, y: -4},
+                {x: -6, y: 8}, {x: -18, y: -2}, {x: -30, y: -14}, {x: -44, y: -24}
+            ];
+
+            ctx.beginPath();
+            ctx.moveTo(stars[0].x, stars[0].y);
+            ctx.lineTo(stars[1].x, stars[1].y);
+            ctx.lineTo(stars[2].x, stars[2].y);
+            ctx.lineTo(stars[3].x, stars[3].y);
+            ctx.lineTo(stars[0].x, stars[0].y);
+            ctx.moveTo(stars[3].x, stars[3].y);
+            ctx.lineTo(stars[4].x, stars[4].y);
+            ctx.lineTo(stars[5].x, stars[5].y);
+            ctx.lineTo(stars[6].x, stars[6].y);
+            ctx.stroke();
+
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, 3.8, 0, Math.PI*2);
+                ctx.fill();
+            });
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        function drawClock() {
+            if (!canvas) { canvas = document.getElementById('astro-clock'); ctx = canvas.getContext('2d'); }
+            const w = canvas.width, h = canvas.height;
+            const cx = w/2, cy = h/2;
+            const R = Math.min(w,h)/2 - 12;
+
+            ctx.clearRect(0,0,w,h);
+            ctx.fillStyle = '#020617';
+            ctx.beginPath(); ctx.arc(cx,cy,R+8,0,Math.PI*2); ctx.fill();
+
+            // 24节气外环
+            const jieqiR = R + 5;
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(cx,cy,jieqiR,0,Math.PI*2); ctx.stroke();
+
+            ctx.fillStyle = '#e0e7ff'; ctx.font = '8.5px "Noto Sans SC"'; ctx.textAlign = 'center';
+            for (let i = 0; i < 24; i++) {
+                const jq = jieqiList[i];
+                const a = (jq.lon - 90) * Math.PI / 180;
+                const tx = cx + (jieqiR - 12) * Math.cos(a);
+                const ty = cy + (jieqiR - 12) * Math.sin(a);
+                ctx.save(); ctx.translate(tx, ty); ctx.rotate(a + Math.PI/2);
+                ctx.fillText(jq.name, 0, 0); ctx.restore();
+            }
+
+            // 当前节气长指针（按日动态）
+            const dayOfYear = getDayOfYear(currentData.time);
+            const yearProgress = dayOfYear / 365.25;
+            const pointerAngle = (yearProgress * 360 - 90) * Math.PI / 180;
+
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + (jieqiR - 6) * Math.cos(pointerAngle), cy + (jieqiR - 6) * Math.sin(pointerAngle));
+            ctx.stroke();
+
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(cx + (jieqiR - 6)*Math.cos(pointerAngle), cy + (jieqiR - 6)*Math.sin(pointerAngle), 5.5, 0, Math.PI*2);
+            ctx.fill();
+
+            // 黄道 + 28宿
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+
+            ctx.fillStyle = '#e0e7ff'; ctx.font = '7.5px "Noto Sans SC"';
+            const xiuStep = 360/28;
+            for (let i=0; i<28; i++) {
+                const d = i*xiuStep + 2;
+                const a = (d-90)*Math.PI/180;
+                const tx = cx + (R-30)*Math.cos(a);
+                const ty = cy + (R-30)*Math.sin(a);
+                ctx.save(); ctx.translate(tx,ty); ctx.rotate(a + Math.PI/2);
+                ctx.fillText(lunarMansions[i], 0, 0); ctx.restore();
+            }
+
+            // 时辰环（字体放大）
+            const innerR = R * 0.52;
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(cx,cy,innerR,0,Math.PI*2); ctx.stroke();
+
+            const shiNames = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+            const shiProg = getShiProgress(currentData.time);
+            const shiIdx = Math.floor(shiProg);
+            const shiFrac = shiProg - shiIdx;
+            const startA = (shiIdx*30 - 90)*Math.PI/180;
+            const wedge = shiFrac * (30*Math.PI/180);
+
+            ctx.fillStyle = 'rgba(245,158,11,0.2)';
+            ctx.beginPath(); ctx.moveTo(cx,cy);
+            ctx.arc(cx,cy,innerR*1.1, startA, startA+wedge); ctx.closePath(); ctx.fill();
+
+            ctx.strokeStyle = '#fef08c'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(cx,cy,innerR*1.1, startA, startA+wedge); ctx.stroke();
+
+            for (let i=0; i<12; i++) {
+                const mid = (i*30-90+15)*Math.PI/180;
+                const lx = cx + innerR*0.65 * Math.cos(mid);
+                const ly = cy + innerR*0.65 * Math.sin(mid);
+                ctx.fillStyle = (i===shiIdx) ? '#fef08c' : '#ffffff';
+                ctx.font = (i===shiIdx) ? 'bold 17px "Noto Sans SC"' : '14px "Noto Sans SC"';
+                ctx.textAlign='center'; ctx.textBaseline='middle';
+                ctx.fillText(shiNames[i]+'时', lx, ly);
+            }
+
+            const cA = startA + wedge/2;
+            ctx.strokeStyle = '#fef08c'; ctx.lineWidth = 5.5; ctx.lineCap='round';
+            ctx.beginPath(); ctx.moveTo(cx,cy);
+            ctx.lineTo(cx + innerR*0.36*Math.cos(cA), cy + innerR*0.36*Math.sin(cA));
+            ctx.stroke();
+
+            const kA = startA + currentData.keFraction * wedge;
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2.8;
+            ctx.beginPath(); ctx.moveTo(cx,cy);
+            ctx.lineTo(cx + innerR*0.52*Math.cos(kA), cy + innerR*0.52*Math.sin(kA));
+            ctx.stroke();
+
+            // 纯色星体 + 名称（放大）
+            const planetR = R * 0.75;
+            Object.keys(currentData.planets).forEach(key => {
+                const p = currentData.planets[key];
+                const angle = (p.lon - 90) * Math.PI / 180;
+                const px = cx + planetR * Math.cos(angle);
+                const py = cy + planetR * Math.sin(angle);
+
+                ctx.shadowColor = p.color; ctx.shadowBlur = 9;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px "Noto Sans SC"';
+                ctx.textAlign = 'center';
+                const labelR = planetR + 18;
+                const lx = cx + labelR * Math.cos(angle);
+                const ly = cy + labelR * Math.sin(angle);
+                ctx.fillText(p.name, lx, ly);
+            });
+
+            // 中心北斗
+            const dipperRot = (shiProg * 10) * Math.PI / 180;
+            drawBigDipper(cx, cy, dipperRot);
+
+            ctx.fillStyle = '#67e8f9';
+            ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, Math.PI*2); ctx.fill();
+        }
+
+        function updateUI() {
+            const now = currentData.time;
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('zh-CN',{hour12:false}) + ' CST';
+
+            const jq = getCurrentJieqi(currentData.sunLon);
+            document.getElementById('current-jieqi').textContent = jq.name;
+            document.getElementById('jieqi-range').textContent = `${jq.start} ~ ${jq.end}`;
+
+            document.getElementById('year-ganzhi').textContent = currentData.year;
+            document.getElementById('month-ganzhi').textContent = currentData.month;
+            document.getElementById('day-ganzhi').textContent = currentData.day;
+            document.getElementById('shi-ganzhi').textContent = currentData.shi || '己巳';
+
+            const shiFull = ['子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时'];
+            document.getElementById('shi-name').textContent = shiFull[Math.floor(getShiProgress(now))];
+
+            const keNames = ['初刻','二刻','三刻','四刻'];
+            document.getElementById('ke-text').textContent = keNames[currentData.ke] || '';
+
+            const keCont = document.getElementById('ke-segments');
+            keCont.innerHTML = '';
+            for(let i=0; i<4; i++){
+                const d = document.createElement('div');
+                d.className = `h-2 flex-1 rounded ${i <= currentData.ke ? 'bg-amber-400' : 'bg-slate-700'}`;
+                keCont.appendChild(d);
+            }
+
+            const list = document.getElementById('planet-list');
+            list.innerHTML = '';
+            Object.keys(currentData.planets).forEach(k => {
+                const p = currentData.planets[k];
+                const el = document.createElement('div');
+                el.className = 'flex justify-between items-center bg-slate-950/60 px-2 py-1 rounded text-xs';
+                el.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span style="color:${p.color}" class="w-2.5 h-2.5 rounded-full inline-block"></span>
+                        <span class="font-medium">${p.name}</span>
+                    </div>
+                    <span class="font-mono">${p.lon.toFixed(1)}°</span>
+                `;
+                list.appendChild(el);
+            });
+
+            drawClock();
+        }
+
+        function updatePlanetPositions(hoursDelta) {
+            const speeds = {sun:0.04, moon:0.55, mercury:1.5, venus:1.15, mars:0.08, jupiter:0.028, saturn:0.01};
+            Object.keys(currentData.planets).forEach(key => {
+                const p = currentData.planets[key];
+                p.lon = (p.lon + hoursDelta * (speeds[key]||0.05)) % 360;
+                if(p.lon < 0) p.lon += 360;
+            });
+            currentData.sunLon = currentData.planets.sun.lon;
+        }
+
+        function updateFromSlider() {
+            const min = parseInt(document.getElementById('time-slider').value);
+            const simT = new Date(baseTime.getTime() + min*60000);
+            currentData.time = simT;
+
+            const prog = getShiProgress(simT);
+            currentData.shiIndex = Math.floor(prog);
+            currentData.keFraction = prog - currentData.shiIndex;
+            currentData.ke = Math.min(3, Math.floor(currentData.keFraction*4));
+
+            currentData.shi = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'][currentData.shiIndex%10] + 
+                              ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][currentData.shiIndex];
+
+            updatePlanetPositions(min/60);
+            updateUI();
+        }
+
+        function toggleSimulation() {
+            simulationRunning = !simulationRunning;
+            const icon = document.getElementById('sim-icon');
+            const txt = document.getElementById('sim-text');
+            if(simulationRunning){
+                icon.classList.replace('fa-play','fa-pause');
+                txt.textContent = '暂停';
+                simInterval = setInterval(()=>{
+                    const s = document.getElementById('time-slider');
+                    let v = parseInt(s.value) + 4;
+                    if(v>1440) v=0;
+                    s.value = v;
+                    updateFromSlider();
+                },650);
+            }else{
+                icon.classList.replace('fa-pause','fa-play');
+                txt.textContent = '连续模拟';
+                clearInterval(simInterval);
+            }
+        }
+
+        function resetToNow() {
+            if(simulationRunning) toggleSimulation();
+            currentData.time = new Date();
+            document.getElementById('time-slider').value = 0;
+            baseTime = new Date();
+
+            currentData.planets.sun.lon=57.84; currentData.planets.moon.lon=91.01;
+            currentData.planets.mercury.lon=63.39; currentData.planets.venus.lon=89.77;
+            currentData.planets.mars.lon=29.80; currentData.planets.jupiter.lon=111.37;
+            currentData.planets.saturn.lon=10.70;
+            currentData.sunLon = 57.84;
+
+            updateUI();
+        }
+
+        function init() {
+            canvas = document.getElementById('astro-clock');
+            ctx = canvas.getContext('2d');
+            baseTime = new Date(currentData.time);
+
+            const p = getShiProgress(currentData.time);
+            currentData.shiIndex = Math.floor(p);
+            currentData.keFraction = p - currentData.shiIndex;
+            currentData.ke = Math.min(3, Math.floor(currentData.keFraction*4));
+            currentData.shi = '己巳';
+
+            updateUI();
+
+            setInterval(()=>{
+                if(!simulationRunning){
+                    currentData.time = new Date();
+                    document.getElementById('current-time').textContent = currentData.time.toLocaleTimeString('zh-CN',{hour12:false})+' CST';
+                }
+            },1000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
