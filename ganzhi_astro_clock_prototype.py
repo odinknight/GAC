@@ -1,1 +1,1 @@
-PASTE_PY_HERE
+Updated for 4 Ke per Shi Chen
