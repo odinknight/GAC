@@ -1,0 +1,17 @@
+{
+  "name": "ganzhi-clock",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "实时、准确、美观的干支（四柱）时钟 + 农历 + 24节气。",
+  "main": "test-lunar-verify.js",
+  "scripts": {
+    "test": "node test-lunar-verify.js",
+    "verify": "node test-lunar-verify.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "solarlunar": "^3.1.0"
+  }
+}
