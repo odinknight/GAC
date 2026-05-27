@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>干支时钟 · Ganzhi Clock</title>
+  <title>干支时钟 · 八字排盘</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <!-- solarlunar 库：用于准确的农历 + 八字干支（推荐用于历史/生日查询） -->
@@ -116,7 +116,7 @@
     <div class="flex items-center justify-between mb-8">
       <div>
         <h1 class="text-4xl font-bold tracking-tight title-font">干支时钟</h1>
-        <p class="text-slate-400 mt-1 text-sm">实时四柱 · 农历 · 节气 · 纳音</p>
+        <p class="text-slate-400 mt-1 text-sm">实时四柱 · 生日八字排盘 · 云端记录</p>
       </div>
       <div class="flex items-center gap-3">
         <!-- 简易主题切换 -->
@@ -313,7 +313,6 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <span class="section-title text-slate-400">生日八字排盘 · 大运流年</span>
-          <span class="ml-2 text-xs text-emerald-400">(专业命盘分析)</span>
 
           <!-- 排盘记录入口（密码保护） -->
           <button onclick="openBaziRecordsWithPassword()" 
@@ -360,7 +359,7 @@
           </button>
 
           <div class="text-[10px] text-slate-500">
-            支持精确时辰 · 自动计算起运 · 大运 + 全年流月 + 流日展开
+            支持精确到分钟 · 自动保存云端记录 · 含大运、流月、流日
           </div>
         </div>
 
@@ -400,7 +399,7 @@
            class="bg-slate-900 border border-slate-700 rounded-3xl w-[92%] max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         
         <div class="flex items-center justify-between px-5 py-3 border-b border-slate-700">
-          <div class="font-medium">排盘记录（本地）</div>
+          <div class="font-medium">排盘记录（云端）</div>
           <div class="flex gap-2 text-xs">
             <button onclick="exportBaziRecords()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">导出</button>
             <button onclick="importBaziRecords()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">导入</button>
@@ -417,8 +416,10 @@
 
     <!-- Footer / Status -->
     <div class="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500 px-1">
-      <div>
-        v0.5 · 历史查询 + 24节气 + 生日八字排盘（大运流年）
+      <div class="flex flex-col md:flex-row md:items-center gap-x-4 gap-y-1">
+        <span>干支时钟 · 八字排盘（支持云端记录）</span>
+        <span class="hidden md:inline text-slate-600">|</span>
+        <span class="text-[10px]">排盘记录会自动保存至云端，仅工具所有者可通过密码查看</span>
       </div>
       <div class="flex items-center gap-4">
         <div onclick="copyCurrentGanzhi()" 
@@ -1281,12 +1282,22 @@
     const SUPABASE_CONFIG_KEY = 'bazi_supabase_config';
 
     function getSupabaseConfig() {
+      // 优先使用本地覆盖的配置（方便自己测试）
       try {
         const data = localStorage.getItem(SUPABASE_CONFIG_KEY);
-        return data ? JSON.parse(data) : null;
-      } catch (e) {
-        return null;
-      }
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (parsed && parsed.url && parsed.anonKey) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+
+      // 默认配置（部署到 GitHub 后所有人排盘都会自动使用这个）
+      return {
+        url: "https://hkdkrrrcaxqmteimlmtu.supabase.co",
+        anonKey: "sb_publishable_QzDeAlaHhDKGGMXEMX8ddQ_28b4LDjO"
+      };
     }
 
     function saveSupabaseConfig(config) {
@@ -1468,17 +1479,19 @@
       const config = getSupabaseConfig() || {};
 
       alert(
-        "【Supabase 云同步设置（推荐）】\n\n" +
-        "1. 去 https://supabase.com 创建免费项目\n" +
-        "2. 在 Settings → API 复制 Project URL 和 anon public key\n" +
-        "3. 在 SQL Editor 执行建表语句（见文档或我给你的 schema）\n\n" +
-        "配置后，所有人排盘都会自动保存到云端，只有你能查看完整列表。"
+        "【Supabase 云同步设置】\n\n" +
+        "当前工具已默认连接到所有者的云数据库。\n\n" +
+        "如果你是工具所有者，想换成自己的 Supabase 项目，可以在这里覆盖：\n" +
+        "1. 去 https://supabase.com 创建项目\n" +
+        "2. 复制 Project URL 和 Publishable key\n" +
+        "3. 在下方依次填入即可\n\n" +
+        "普通用户无需配置，排盘记录会自动保存。"
       );
 
       const url = prompt('请输入 Supabase Project URL：', config.url || '');
       if (url === null) return;
 
-      const anonKey = prompt('请输入 anon public key：', config.anonKey || '');
+      const anonKey = prompt('请输入 Publishable key：', config.anonKey || '');
 
       saveSupabaseConfig({
         url: url.trim(),
@@ -1742,20 +1755,20 @@
       let html = `
         <div class="mb-4 p-3 bg-slate-800 rounded-xl">
           <div class="flex items-center justify-between mb-2">
-            <div class="font-medium text-sm">云端同步（自动存储）</div>
+            <div class="font-medium text-sm">云端同步设置</div>
             <div class="flex gap-2">
-              <button onclick="openSupabaseSettings()" class="text-xs px-3 py-1 bg-purple-700 hover:bg-purple-600 rounded">Supabase 设置</button>
-              <button onclick="openGistSyncSettings()" class="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded">Gist 设置</button>
+              <button onclick="openSupabaseSettings()" class="text-xs px-3 py-1 bg-purple-700 hover:bg-purple-600 rounded">Supabase</button>
+              <button onclick="openGistSyncSettings()" class="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded">GitHub Gist</button>
             </div>
           </div>
           <div class="text-xs text-slate-400">
-            推荐使用 Supabase：所有人排盘都会自动保存到云，只有你能查看完整列表。
+            记录默认自动保存至工具所有者的云端数据库。只有输入密码后才能查看全部历史记录。
           </div>
         </div>
       `;
 
       if (records.length === 0) {
-        html += `<div class="text-center text-slate-500 py-8">暂无排盘记录</div>`;
+        html += `<div class="text-center text-slate-500 py-8">暂无排盘记录<br><span class="text-[10px]">（排盘后会自动保存至云端）</span></div>`;
         container.innerHTML = html;
         return;
       }
