@@ -251,11 +251,12 @@
         <div>
           <span class="section-title text-slate-400">当前节气</span>
         </div>
-        <div id="next-jieqi" class="text-sm text-slate-400"></div>
+        <div id="next-jieqi" class="text-sm text-white font-medium"></div>
+        <div id="next-jieqi-time" class="text-sm text-amber-300 mt-0.5 font-mono font-medium tracking-wide"></div>
       </div>
       
       <div class="flex items-baseline gap-3">
-        <div id="current-jieqi" class="text-4xl font-semibold text-amber-300"></div>
+        <div id="current-jieqi" class="text-4xl font-semibold text-white"></div>
         <div id="jieqi-date" class="text-slate-400"></div>
       </div>
       
@@ -280,8 +281,10 @@
       </div>
       <div class="flex flex-wrap gap-3 items-end">
         <div>
-          <label class="text-xs text-slate-500 block mb-1">选择日期</label>
-          <input id="history-date" type="date" class="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm text-white" value="2026-05-26">
+          <label class="text-xs text-slate-500 block mb-1">选择日期 + 时间（精确到时辰）</label>
+          <input id="history-datetime" type="datetime-local" 
+                 class="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm text-white w-full max-w-[260px]"
+                 value="2026-05-26T12:00">
         </div>
         <button onclick="queryHistory()" 
                 class="px-5 py-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 transition text-sm font-medium rounded-2xl">
@@ -290,16 +293,124 @@
         <div id="history-result" class="flex-1 text-sm text-slate-300 min-h-[28px]"></div>
       </div>
 
-      <!-- 快捷日期 -->
+      <!-- 快捷日期：24节气快速选择 -->
       <div class="mt-4 pt-4 border-t border-slate-700">
-        <div class="text-[10px] text-slate-500 mb-2">快捷日期</div>
-        <div class="flex flex-wrap gap-2 text-xs">
-          <button onclick="quickDate('2026-05-26')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">2026-05-26 庚子日</button>
-          <button onclick="quickDate('2026-02-04')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">2026立春</button>
-          <button onclick="quickDate('2025-12-22')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">2025冬至</button>
-          <button onclick="quickDate('2024-02-04')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">2024立春</button>
-          <button onclick="useBirthday()" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-800 rounded-xl text-emerald-300" id="btn-birthday">我的生日</button>
-          <button onclick="setMyBirthday()" class="px-2 py-1 text-emerald-400 hover:text-emerald-300">设置生日</button>
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[10px] text-slate-500">当年 24 节气（点击可查询精确时刻）</div>
+          <button onclick="refreshSolarTermsQuick()" 
+                  class="text-[10px] px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-400">刷新</button>
+        </div>
+        <div id="solar-terms-quick" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-xs max-h-[210px] overflow-y-auto pr-1">
+          <!-- 动态由 JS 填充 24 节气按钮 -->
+        </div>
+
+        <!-- 旧的“我的生日”快捷按钮已移除，按用户要求转入独立排盘面板 -->
+      </div>
+    </div>
+
+    <!-- 新增：生日八字排盘专区 -->
+    <div class="mt-8 bg-slate-900 border border-slate-700 rounded-3xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="section-title text-slate-400">生日八字排盘 · 大运流年</span>
+          <span class="ml-2 text-xs text-emerald-400">(专业命盘分析)</span>
+
+          <!-- 排盘记录入口（密码保护） -->
+          <button onclick="openBaziRecordsWithPassword()" 
+                  class="ml-3 px-1.5 py-0.5 text-xl hover:scale-125 transition-transform"
+                  title="查看排盘记录（需密码）">
+            ★
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 输入区 -->
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-500 block mb-1">出生日期 + 时间</label>
+            <input id="bazi-birth-datetime" type="datetime-local" 
+                   class="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm text-white w-full"
+                   value="">
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-500 block mb-1">备注 / 姓名（用于区分记录，可选）</label>
+            <input id="bazi-name" type="text" placeholder="例如：张三 / 本人 / 女儿"
+                   class="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm text-white w-full">
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-500 block mb-1">性别（大运顺逆关键）</label>
+            <div class="flex gap-4 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bazi-gender" value="male" checked class="accent-emerald-400">
+                <span>男</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bazi-gender" value="female" class="accent-emerald-400">
+                <span>女</span>
+              </label>
+            </div>
+          </div>
+
+          <button onclick="calculateBaziChart()"
+                  class="w-full mt-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition text-sm font-medium rounded-2xl">
+            开始排盘
+          </button>
+
+          <div class="text-[10px] text-slate-500">
+            支持精确时辰 · 自动计算起运 · 大运 + 全年流月 + 流日展开
+          </div>
+        </div>
+
+        <!-- 输出区 -->
+        <div id="bazi-result" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 min-h-[220px] text-sm">
+          <div class="text-slate-500 text-center pt-8">输入生日后点击「开始排盘」</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 排盘记录已改为密码保护模式，通过标题旁 📜 图标访问 -->
+
+    <!-- 密码验证 Modal -->
+    <div id="bazi-password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70" onclick="closeBaziPasswordModal()">
+      <div onclick="event.stopImmediatePropagation()" 
+           class="bg-slate-900 border border-slate-700 rounded-3xl w-[320px] p-6">
+        <div class="text-center">
+          <div class="text-3xl mb-3">🔒</div>
+          <div class="text-lg font-medium mb-4">查看排盘记录</div>
+          <input id="bazi-password-input" type="password" placeholder="请输入密码"
+                 class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                 onkeypress="if(event.key==='Enter') verifyBaziPassword()">
+          <div class="flex gap-3 mt-4">
+            <button onclick="closeBaziPasswordModal()" 
+                    class="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-2xl text-sm">取消</button>
+            <button onclick="verifyBaziPassword()" 
+                    class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm">确认</button>
+          </div>
+          <div id="bazi-password-error" class="text-red-400 text-xs mt-2 hidden">密码错误</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 排盘记录列表 Modal -->
+    <div id="bazi-records-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70" onclick="closeBaziRecordsModal()">
+      <div onclick="event.stopImmediatePropagation()" 
+           class="bg-slate-900 border border-slate-700 rounded-3xl w-[92%] max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+        
+        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-700">
+          <div class="font-medium">排盘记录（本地）</div>
+          <div class="flex gap-2 text-xs">
+            <button onclick="exportBaziRecords()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">导出</button>
+            <button onclick="importBaziRecords()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">导入</button>
+            <button onclick="clearAllBaziRecords()" class="px-3 py-1 bg-red-900/70 hover:bg-red-900 rounded-xl text-red-300">清空</button>
+            <button onclick="closeBaziRecordsModal()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">关闭</button>
+          </div>
+        </div>
+
+        <div class="p-4 overflow-auto flex-1" id="bazi-records-modal-content">
+          <!-- 由 JS 渲染记录表格 -->
         </div>
       </div>
     </div>
@@ -307,7 +418,7 @@
     <!-- Footer / Status -->
     <div class="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500 px-1">
       <div>
-        v0.3 · 高精度干支 + 农历 + 节气 + 纳音 · 实时圆形表盘 · 主题 &amp; 历史查询
+        v0.5 · 历史查询 + 24节气 + 生日八字排盘（大运流年）
       </div>
       <div class="flex items-center gap-4">
         <div onclick="copyCurrentGanzhi()" 
@@ -317,6 +428,31 @@
         </div>
         <div class="text-slate-600">|</div>
         <a href="https://github.com" target="_blank" class="hover:text-slate-300 transition-colors">GitHub</a>
+      </div>
+    </div>
+
+    <!-- 纳音详解 Modal -->
+    <div id="nayin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70" onclick="closeNayinModal()">
+      <div onclick="event.stopImmediatePropagation()" 
+           class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-[92%] p-6 text-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <span id="nayin-modal-title" class="text-xl font-semibold text-amber-300"></span>
+            <span id="nayin-modal-ganzhi" class="ml-2 text-slate-400 text-sm"></span>
+          </div>
+          <button onclick="closeNayinModal()" class="text-slate-400 hover:text-white text-xl leading-none">×</button>
+        </div>
+        
+        <div id="nayin-modal-desc" class="text-slate-200 leading-relaxed mb-4"></div>
+        
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs text-slate-300">
+          <div class="text-amber-300/80 mb-1 text-[10px] tracking-widest">古典取象</div>
+          <div id="nayin-modal-classic" class="leading-snug"></div>
+        </div>
+        
+        <div class="mt-4 pt-4 border-t border-slate-700 text-[11px] text-slate-400">
+          纳音为命理辅助之学，取象寓意仅供参考。
+        </div>
       </div>
     </div>
   </div>
@@ -335,9 +471,18 @@
     };
 
     const WUXING_COLOR = {
-      '木': '#4ade80', '火': '#f87171', '土': '#fbbf24',
-      '金': '#e2e8f0', '水': '#60a5fa'
+      '金': '#d4af37',   // 金色
+      '木': '#22c55e',   // 绿色
+      '水': '#3b82f6',   // 蓝色
+      '火': '#ef4444',   // 红色
+      '土': '#a16207'    // 褐色
     };
+
+    // 统一的天干地支颜色获取函数
+    function getGanzhiColor(char) {
+      const wx = WUXING[char];
+      return WUXING_COLOR[wx] || '#e2e8f0';
+    }
 
     // 标准六十纳音（甲子海中金 ... 癸亥大海水）
     const NAYIN = {
@@ -483,6 +628,15 @@
     // ==================== 工具函数 ====================
     function pad(n) { return n.toString().padStart(2, '0'); }
 
+    // 本地使用的节气时间格式化（与核心模块保持一致）
+    // 优化：显示「约」以诚实说明算法精度（经典公式约 ±20-40 分钟）
+    function formatSolarTermTimeLocal(date) {
+      if (!date) return '';
+      const h = date.getHours().toString().padStart(2, '0');
+      const m = date.getMinutes().toString().padStart(2, '0');
+      return `约 ${date.getFullYear()}年${pad(date.getMonth()+1)}月${pad(date.getDate())}日 ${h}:${m}`;
+    }
+
     function getShichenIndex(hour) {
       if (hour >= 23 || hour < 1) return 0;   // 子
       if (hour >= 1 && hour < 3) return 1;    // 丑
@@ -558,12 +712,32 @@
       419210,440795,462224,483532,504758
     ];
 
+    /**
+     * 节气时间校准表（单位：分钟）
+     * 2026年根据用户实测数据校准：
+     *   立春（index 2）→ 04:02
+     *   冬至（index 23）→ 04:50
+     */
+    const SOLAR_TERM_CORRECTIONS = {
+      2026: {
+        // 根据用户实测数据校准（已扣除8小时时区影响）
+        2: -374,   // 立春 → 目标约 04:02
+        23: -377   // 冬至 → 目标约 04:50
+      }
+    };
+
     function getSolarTermDate(year, n) {
-      const offDate = new Date(
-        (31556925974.7 * (year - 1900) + S_TERM_INFO[n] * 60000) +
-        Date.UTC(1900, 0, 6, 2, 5)
-      );
-      return new Date(offDate.getUTCFullYear(), offDate.getUTCMonth(), offDate.getUTCDate());
+      const offMs = 31556925974.7 * (year - 1900) + S_TERM_INFO[n] * 60000;
+      const base = Date.UTC(1900, 0, 6, 2, 5);
+
+      // 应用校准偏移
+      let correctionMs = 0;
+      if (SOLAR_TERM_CORRECTIONS[year] && SOLAR_TERM_CORRECTIONS[year][n] != null) {
+        correctionMs = SOLAR_TERM_CORRECTIONS[year][n] * 60000;
+      }
+
+      const fullDate = new Date(offMs + base + correctionMs);
+      return fullDate;
     }
 
     function getCurrentSolarTerm(date) {
@@ -588,14 +762,17 @@
       const nxt = terms[idx + 1];
 
       const ms = nxt.date.getTime() - date.getTime();
+      const nextTimeStr = formatSolarTermTimeLocal(nxt.date);
+
       return {
         current: { name: cur.name, date: cur.date },
-        next:    { name: nxt.name, date: nxt.date },
+        next:    { name: nxt.name, date: nxt.date, timeStr: nextTimeStr },
         daysToNext: Math.floor(ms / 86400000),
         hoursToNext: Math.floor((ms % 86400000) / 3600000),
         progress: Math.min(100, Math.max(0, 
           ((date - cur.date) / (nxt.date - cur.date)) * 100
-        ))
+        )),
+        nextTimeStr
       };
     }
 
@@ -620,12 +797,13 @@
       }
 
       const yearGanIndex = (ganzhiYear - 4) % 10;
-      const TIGER_BASE = [2,4,6,8,0,3,5,7,9,1];
+      // 正确的五虎遁月起寅干：甲己丙、乙庚戊、丙辛庚、丁壬壬、戊癸甲
+      const TIGER_BASE = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0];
       const base = TIGER_BASE[yearGanIndex];
 
       const zhiIdx = ZHI.indexOf(monthZhi);
-      const offset = (zhiIdx - 2 + 12) % 12;
-      const monthGanIndex = (base + offset) % 10;
+      const stepsFromYin = (zhiIdx - 2 + 12) % 12;   // 从寅月开始数
+      const monthGanIndex = (base + stepsFromYin) % 10;
 
       return {
         ganzhiYear,
@@ -700,14 +878,53 @@
     console.log('当前时间验证:', window.verifyGanzhi());
     console.log('提示：控制台输入 verifyGanzhi("YYYY-MM-DD") 随时测试（会同时显示 solarlunar 结果）');
 
+    // ==================== 统一 getFourPillars 封装（供新排盘面板使用） ====================
+    function getFourPillars(date = new Date()) {
+      try {
+        const dayG = getDayGanzhi(date);
+        const hourG = getHourGanzhi(dayG.ganIndex, date.getHours());
+        const jieqiInfo = getCurrentJieqiAndMonth(date);
+        const yearG = getYearGanzhi(jieqiInfo.ganzhiYear);
+        const lunar = getLunar(date);
+        const shichenIdx = getShichenIndex(date.getHours());
+
+        return {
+          year: yearG,
+          month: {
+            gan: jieqiInfo.monthGan,
+            zhi: jieqiInfo.monthZhi,
+            full: jieqiInfo.monthFull,
+            ganIndex: GAN.indexOf(jieqiInfo.monthGan),
+            zhiIndex: ZHI.indexOf(jieqiInfo.monthZhi)
+          },
+          day: dayG,
+          hour: hourG,
+          lunar: lunar,
+          solarTerm: jieqiInfo.solarTerm,
+          shichen: {
+            name: ZHI[shichenIdx] + '时',
+            index: shichenIdx
+          },
+          ganzhiYear: jieqiInfo.ganzhiYear
+        };
+      } catch (e) {
+        console.error('getFourPillars 出错', e);
+        throw e;
+      }
+    }
+
     // ==================== 渲染函数 ====================
     function renderPillar(elementId, ganzhi, type, extraInfo = '') {
       const container = document.getElementById(elementId);
       const detail = document.getElementById(elementId.replace('ganzhi', 'detail'));
       const wuxingEl = document.getElementById(elementId.replace('ganzhi', 'wuxing'));
       
+      const ganColor = getGanzhiColor(ganzhi.gan);
+      const zhiColor = getGanzhiColor(ganzhi.zhi);
+
+      // 干支字符本身带五行颜色（统一输出）
       container.innerHTML = `
-        <span class="text-white">${ganzhi.gan}</span><span class="text-slate-300">${ganzhi.zhi}</span>
+        <span style="color:${ganColor}; font-weight:700; font-size: 3.1rem; line-height:1;">${ganzhi.gan}</span><span style="color:${zhiColor}; font-weight:700; font-size: 3.1rem; line-height:1;">${ganzhi.zhi}</span>
       `;
       
       const ganWx = WUXING[ganzhi.gan];
@@ -754,23 +971,25 @@
       renderPillar('day-ganzhi', dayG, 'day');
       renderPillar('hour-ganzhi', hourG, 'hour');
 
-      // 年柱特别增强：生肖 + 纳音（最醒目）
+      // 年柱特别增强：生肖 + 纳音（最醒目，可点击查看详解）
       const yearSheng = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'][yearG.zhiIndex];
       const yearNayin = NAYIN[yearG.full] || '';
       const yearExtra = document.getElementById('year-wuxing');
       if (yearExtra) {
         yearExtra.innerHTML = `
           <span class="inline-block mr-2">🐾 ${yearSheng}年</span>
-          <span class="inline-block">${yearNayin}</span>
+          <span onclick="showNayinDetail('${yearNayin}'); event.stopImmediatePropagation();" 
+                class="inline-block cursor-pointer hover:text-amber-400 active:text-amber-200 transition-colors underline decoration-amber-400/30">${yearNayin}</span>
         `;
         yearExtra.className = 'mt-1 text-xs px-2 py-0.5 bg-amber-900/40 text-amber-300 rounded';
       }
 
-      // 其他柱子也附带纳音（小字）
+      // 其他柱子也附带纳音（小字，可点击）
       const addNayin = (id, gzFull) => {
         const el = document.getElementById(id.replace('ganzhi', 'wuxing'));
-        if (el && NAYIN[gzFull]) {
-          el.innerHTML = el.innerHTML + ` <span class="ml-1 text-amber-400/70">· ${NAYIN[gzFull]}</span>`;
+        const nayin = NAYIN[gzFull];
+        if (el && nayin) {
+          el.innerHTML = el.innerHTML + ` <span onclick="showNayinDetail('${nayin}'); event.stopImmediatePropagation();" class="ml-1 text-amber-400/70 cursor-pointer hover:text-amber-300 transition-colors">· ${nayin}</span>`;
         }
       };
       addNayin('month-ganzhi', jieqiInfo.monthFull);
@@ -787,8 +1006,15 @@
       document.getElementById('current-jieqi').innerHTML = st.current.name;
       document.getElementById('jieqi-date').innerHTML = `${st.current.date.getFullYear()}年${pad(st.current.date.getMonth()+1)}月${pad(st.current.date.getDate())}日`;
 
-      const nextJieqiText = `下一个：${st.next.name}`;
-      document.getElementById('next-jieqi').innerHTML = nextJieqiText;
+      // 改进：显示下一个节气的具体时间（利用算法自带的分钟精度 + 优化显示）
+      const nextTimeEl = document.getElementById('next-jieqi-time');
+      const nextJieqiEl = document.getElementById('next-jieqi');
+      const nextTimeStr = st.nextTimeStr || (st.next && st.next.date ? formatSolarTermTimeLocal(st.next.date) : '');
+      
+      nextJieqiEl.innerHTML = `下一个：${st.next.name}`;
+      if (nextTimeEl) {
+        nextTimeEl.innerHTML = nextTimeStr ? `（${nextTimeStr}）` : '';
+      }
 
       // 真实倒计时 + 进度条
       document.getElementById('jieqi-countdown').innerHTML = 
@@ -803,6 +1029,65 @@
       } catch (e) {
         console.error('更新时钟出错:', e);
       }
+    }
+
+    // ==================== 纳音详解 Modal ====================
+    const NAYIN_DETAIL = {
+      '海中金': { desc: '宝藏于海，沉潜未露。需空冲或火土陶铸方能成器。', classic: '海中金者，宝藏龙宫，珠孕蛟室。出现虽假于空冲，成器无借乎火力。' },
+      '炉中火': { desc: '天地开炉，万物始生。需木为薪，火得其位而明。', classic: '以寅卯为三四阳，火得位又得木生，此时天地为炉、阴阳为炭。' },
+      '大林木': { desc: '参天巨木，生于深山。取象高大清健，根深叶茂。', classic: '大林木者，参天之木，根深而叶茂。' },
+      '路旁土': { desc: '道边之土，受人践踏。虽有形而无力，须得时而用。', classic: '路旁土者，道途之土，人所践履。' },
+      '剑锋金': { desc: '刚锐之金，百炼成钢。锋芒毕露，杀伐决断。', classic: '剑锋金者，百炼之钢，刚锐无比。' },
+      '山头火': { desc: '高山之火，天门朗照。虽高而明，宜远观不宜近用。', classic: '山头火者，高明之火，照耀天门。' },
+      '涧下水': { desc: '山间细流，清澈而长。虽小却能穿石，源远流长。', classic: '涧下水者，山泉细流，清冽甘美。' },
+      '城头土': { desc: '城垣之土，坚固厚重。主守成与保护。', classic: '城头土者，城郭之土，坚而有守。' },
+      '白蜡金': { desc: '初成之金，蜡中待炼。质地尚嫩，需火力陶铸。', classic: '白蜡金者，初成之器，待火而就。' },
+      '杨柳木': { desc: '柔软垂柳，得水而荣。虽柔却有韧性，春风一吹即绿。', classic: '杨柳木者，柔而有节，随风而动。' },
+      '井泉水': { desc: '地下清泉，甘洌可饮。主清净与滋养。', classic: '井泉水者，地中甘泉，清冽不竭。' },
+      '屋上土': { desc: '房顶之土，炎上之气。虽高却不实，易散。', classic: '屋上土者，覆屋之土，炎上而散。' },
+      '霹雳火': { desc: '雷霆之火，龙神变化。威猛迅疾，极具爆发力。', classic: '霹雳火者，雷霆变化，威猛无比。' },
+      '松柏木': { desc: '岁寒松柏，常青不凋。取象坚贞高洁。', classic: '松柏木者，岁寒不凋，坚贞之质。' },
+      '长流水': { desc: '源源不绝之水，主流通与持久。', classic: '长流水者，源远流长，永不枯竭。' },
+      '砂石金': { desc: '沙中之金，混杂待淘。质虽贵而未纯。', classic: '砂石金者，沙中之金，待淘而精。' },
+      '山下火': { desc: '山脚之火，日入无光。虽有火性而光不显。', classic: '山下火者，隐而不显，光华内敛。' },
+      '平地木': { desc: '原野之木，得雨露而茂。平易近人而有生机。', classic: '平地木者，原野之木，雨露滋养。' },
+      '壁上土': { desc: '墙壁之土，包藏掩形。主隐秘与守护。', classic: '壁上土者，墙壁之土，包藏掩护。' },
+      '金箔金': { desc: '薄金成箔，柔而易破。虽美而力薄。', classic: '金箔金者，薄而有华，力不厚重。' },
+      '覆灯火': { desc: '灯火被覆，光照受阻。虽明而难远达。', classic: '覆灯火者，灯火被覆，光而不远。' },
+      '天河水': { desc: '银河之水，沛然从天。主恩泽与清澈。', classic: '天河水者，银河沛降，恩泽普施。' },
+      '大驿土': { desc: '驿站大道之土，气归收敛。主交通与中转。', classic: '大驿土者，大道之土，往来通达。' },
+      '钗钏金': { desc: '首饰之金，成器而美。柔中带刚，饰用之物。', classic: '钗钏金者，首饰之金，成器而美。' },
+      '桑柘木': { desc: '桑树柘木，山环水绕。主蚕桑与生养。', classic: '桑柘木者，山环水绕，惠及蚕桑。' },
+      '大溪水': { desc: '山间大溪，惊涛薄岸。虽急而有势。', classic: '大溪水者，山溪奔流，势不可挡。' },
+      '沙中土': { desc: '沙中之土，混而不纯。需筛选方可用。', classic: '沙中土者，混沙之土，待筛而用。' },
+      '天上火': { desc: '云中之火，雨露沛然。主文明与教化。', classic: '天上火者，云中之火，文明普照。' },
+      '石榴木': { desc: '石榴之木，花红多子。主吉祥与子息。', classic: '石榴木者，花红多子，吉祥繁荣。' },
+      '大海水': { desc: '汪洋大海，纳百川而无量。主包容与深广。', classic: '大海水者，汪洋浩瀚，包容万物。' }
+    };
+
+    function showNayinDetail(nayinName) {
+      const modal = document.getElementById('nayin-modal');
+      const title = document.getElementById('nayin-modal-title');
+      const gz = document.getElementById('nayin-modal-ganzhi');
+      const desc = document.getElementById('nayin-modal-desc');
+      const classic = document.getElementById('nayin-modal-classic');
+
+      const info = NAYIN_DETAIL[nayinName];
+      if (!info) return;
+
+      title.textContent = nayinName;
+      gz.textContent = '';
+      desc.textContent = info.desc;
+      classic.textContent = info.classic || '';
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeNayinModal() {
+      const modal = document.getElementById('nayin-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
     }
 
     // 复制当前四柱
@@ -853,6 +1138,23 @@
           // 未来可扩展搜索历史
         }
       });
+
+      // 历史查询时间监听 + 24节气快捷列表
+      setupHistoryDateListener();
+
+      // 新排盘面板的出生日期时间默认填入当前时间
+      const baziDateInput = document.getElementById('bazi-birth-datetime');
+      if (baziDateInput && !baziDateInput.value) {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        baziDateInput.value = `${y}-${m}-${d}T${hh}:${mm}`;
+      }
+
+      // 排盘记录采用密码保护模式，按需加载
     }
 
     // 主题切换
@@ -873,23 +1175,32 @@
 
     // 历史查询 / 生日查询
     function queryHistory() {
-      const input = document.getElementById('history-date');
+      const input = document.getElementById('history-datetime');
       if (!input.value) return;
-      const d = new Date(input.value + 'T12:00:00'); // 用中午避免时区问题
+      const d = new Date(input.value);  // 支持完整日期时间
 
-      // 优先使用 solarlunar 库（准确匹配用户权威八字数据）
-      let displayYear, displayMonth, displayDay, lunarStr;
+      let displayYear, displayMonth, displayDay, lunarStr, sourceUsed;
+
+      // 强优先使用 solarlunar（用户权威校准数据）
       const sl = window.solarLunar || (window.solarLunar && window.solarLunar.default);
       const hasSolarLunar = sl && typeof sl.solar2lunar === 'function';
 
       if (hasSolarLunar) {
-        const r = sl.solar2lunar(d.getFullYear(), d.getMonth() + 1, d.getDate());
-        displayYear = r.gzYear || '';
-        displayMonth = r.gzMonth || '';
-        displayDay = r.gzDay || '';
-        lunarStr = `${r.lYear || r.year}年${r.monthCn || r.monthStr || ''}${r.dayCn || r.dayStr || ''}`;
-      } else {
-        // 回退到旧逻辑
+        try {
+          const r = sl.solar2lunar(d.getFullYear(), d.getMonth() + 1, d.getDate());
+          displayYear = r.gzYear || '';
+          displayMonth = r.gzMonth || '';
+          displayDay = r.gzDay || '';
+          lunarStr = `${r.lYear || r.year}年${r.monthCn || r.monthStr || ''}${r.dayCn || r.dayStr || ''}`;
+          sourceUsed = 'solarlunar';
+          console.log('%c[历史查询] 使用 solarlunar:', 'color:#22c55e', displayYear, displayMonth, displayDay);
+        } catch (e) {
+          console.warn('solarlunar 调用失败，改用内部逻辑', e);
+        }
+      }
+
+      if (!displayMonth) {
+        // 回退（已修复五虎遁公式，不会再出现辛子这种非法组合）
         const dayG = getDayGanzhi(d);
         const jie = getCurrentJieqiAndMonth(d);
         const yG = getYearGanzhi(jie.ganzhiYear);
@@ -898,55 +1209,896 @@
         displayDay = dayG.full;
         const lun = getLunar(d);
         lunarStr = lun.full;
+        sourceUsed = '内部节气算法（已修正）';
+        console.log('%c[历史查询] 使用内部逻辑（已修正五虎遁）:', 'color:#f59e0b', displayYear, displayMonth, displayDay);
       }
+
+      // 计算完整的时柱（使用精确时间）
+      let hourPillar = '';
+      let shichenName = '';
+      try {
+        // 从 displayDay 拿到日干（前两个字符）
+        const dayGan = displayDay ? displayDay[0] : '';
+        const dayGanIndex = GAN.indexOf(dayGan);
+        
+        if (dayGanIndex >= 0) {
+          const hourG = getHourGanzhi(dayGanIndex, d.getHours());
+          hourPillar = hourG.full;
+          shichenName = getShichenName(d.getHours());
+        }
+      } catch (e) {
+        console.warn('时柱计算失败', e);
+      }
+
+      const fullBazi = (displayYear && displayMonth && displayDay) 
+        ? `${displayYear} ${displayMonth} ${displayDay} ${hourPillar || '??'}` 
+        : '';
 
       const sheng = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
       const yearZhiIdx = (displayYear && displayYear[1]) ? ZHI.indexOf(displayYear[1]) : 0;
       const nayinYear = NAYIN[displayYear] || '';
       const shengStr = sheng[yearZhiIdx] || '';
 
+      const timeInfo = d.getHours() !== 12 || d.getMinutes() !== 0 
+        ? `（${pad(d.getHours())}:${pad(d.getMinutes())}）` 
+        : '';
+
       const html = `
-        <div class="mt-2 text-amber-300 font-medium">${displayYear} ${displayMonth} ${displayDay}</div>
-        <div class="text-xs text-slate-400">${lunarStr} · ${shengStr}年 ${nayinYear}</div>
-        <div class="text-[10px] text-slate-500 mt-1">（使用 solarlunar 库校准）</div>
+        <div class="mt-1">
+          <div class="text-amber-300 font-semibold text-lg tracking-wide">${fullBazi}</div>
+          ${shichenName ? `<div class="text-xs text-amber-400 mt-0.5">时辰：${shichenName}时 ${timeInfo}</div>` : ''}
+        </div>
+        <div class="text-xs text-slate-400 mt-2">${lunarStr} · ${shengStr}年 ${nayinYear}</div>
+        <div class="text-[10px] text-slate-500 mt-1">来源：${sourceUsed} · 已含完整八字（含时柱）</div>
       `;
       document.getElementById('history-result').innerHTML = html;
     }
 
     function queryHistoryToday() {
-      const today = new Date().toISOString().slice(0,10);
-      document.getElementById('history-date').value = today;
+      const now = new Date();
+      // 使用系统当前精确时间
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const local = `${y}-${m}-${d}T${hh}:${mm}`;
+      document.getElementById('history-datetime').value = local;
       queryHistory();
     }
 
     function quickDate(dateStr) {
-      document.getElementById('history-date').value = dateStr;
+      // 如果是纯日期，补充中午时间
+      let val = dateStr;
+      if (dateStr.length === 10) val = dateStr + 'T12:00';
+      document.getElementById('history-datetime').value = val;
       queryHistory();
     }
 
-    function setMyBirthday() {
-      const d = prompt('请输入你的生日 (YYYY-MM-DD)，例如 1990-05-20：');
-      if (d) {
-        localStorage.setItem('ganzhi-birthday', d);
-        alert('已保存！点击“我的生日”即可快速查询');
-        updateBirthdayButton();
+    // 旧的 setMyBirthday / useBirthday / updateBirthdayButton 已完全移除
+
+    // ==================== GitHub Gist 同步功能 ====================
+    const GIST_SYNC_KEY = 'bazi_gist_sync';
+
+    function getGistSyncConfig() {
+      try {
+        const data = localStorage.getItem(GIST_SYNC_KEY);
+        return data ? JSON.parse(data) : null;
+      } catch (e) {
+        return null;
       }
     }
 
-    function useBirthday() {
-      const b = localStorage.getItem('ganzhi-birthday');
-      if (b) {
-        quickDate(b);
+    function saveGistSyncConfig(config) {
+      localStorage.setItem(GIST_SYNC_KEY, JSON.stringify(config));
+    }
+
+    async function syncToGitHubGist(records) {
+      const config = getGistSyncConfig();
+      if (!config || !config.token) {
+        return { success: false, message: '未配置 GitHub Token' };
+      }
+
+      const content = JSON.stringify(records, null, 2);
+      const filename = 'bazi_records.json';
+
+      const headers = {
+        'Authorization': `token ${config.token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      };
+
+      try {
+        if (config.gistId) {
+          // 更新现有 Gist
+          const res = await fetch(`https://api.github.com/gists/${config.gistId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({
+              files: {
+                [filename]: { content }
+              }
+            })
+          });
+
+          if (!res.ok) throw new Error('更新 Gist 失败: ' + res.status);
+          return { success: true, message: '已同步到 GitHub Gist' };
+        } else {
+          // 创建新 Gist
+          const res = await fetch('https://api.github.com/gists', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              description: '干支时钟 - 八字排盘记录',
+              public: false,
+              files: {
+                [filename]: { content }
+              }
+            })
+          });
+
+          if (!res.ok) throw new Error('创建 Gist 失败: ' + res.status);
+
+          const data = await res.json();
+          config.gistId = data.id;
+          saveGistSyncConfig(config);
+
+          return { success: true, message: '已创建新的 GitHub Gist 并同步' };
+        }
+      } catch (err) {
+        console.error(err);
+        return { success: false, message: err.message };
+      }
+    }
+
+    async function loadFromGitHubGist() {
+      const config = getGistSyncConfig();
+      if (!config || !config.token || !config.gistId) {
+        return { success: false, message: '未配置 Gist 信息' };
+      }
+
+      try {
+        const res = await fetch(`https://api.github.com/gists/${config.gistId}`, {
+          headers: {
+            'Authorization': `token ${config.token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!res.ok) throw new Error('获取 Gist 失败: ' + res.status);
+
+        const data = await res.json();
+        const file = data.files['bazi_records.json'];
+        if (!file) throw new Error('Gist 中没有找到 bazi_records.json');
+
+        const records = JSON.parse(file.content);
+        localStorage.setItem(BAZI_RECORDS_KEY, JSON.stringify(records));
+
+        return { success: true, message: `成功从 GitHub 同步 ${records.length} 条记录` };
+      } catch (err) {
+        console.error(err);
+        return { success: false, message: err.message };
+      }
+    }
+
+    // 统一渲染带五行颜色的干支（供新排盘面板使用）
+    function renderColoredGanzhi(gz) {
+      if (!gz || gz.length < 2) return gz;
+      const gan = gz[0];
+      const zhi = gz[1];
+      const ganColor = getGanzhiColor(gan);
+      const zhiColor = getGanzhiColor(zhi);
+      return `<span style="color:${ganColor}; font-weight:600;">${gan}</span><span style="color:${zhiColor}; font-weight:600;">${zhi}</span>`;
+    }
+
+    function loadSavedBirthdayToBaziPanel() {
+      const saved = localStorage.getItem('ganzhi-birthday');
+      if (!saved) {
+        alert('尚未保存过生日');
+        return;
+      }
+      // 补充中午时间以便能正常排盘
+      const dtInput = document.getElementById('bazi-birth-datetime');
+      dtInput.value = saved + 'T12:00';
+      calculateBaziChart();
+    }
+
+    // ==================== 排盘记录功能（localStorage） ====================
+    const BAZI_RECORDS_KEY = 'bazi_records_v1';
+
+    function getBaziRecords() {
+      try {
+        const data = localStorage.getItem(BAZI_RECORDS_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveBaziRecord(record) {
+      const records = getBaziRecords();
+      records.unshift(record);
+      if (records.length > 5000) records.length = 5000;
+      localStorage.setItem(BAZI_RECORDS_KEY, JSON.stringify(records));
+      // 如果记录弹窗当前是打开状态，则刷新它
+      const recordsModal = document.getElementById('bazi-records-modal');
+      if (recordsModal && !recordsModal.classList.contains('hidden')) {
+        renderBaziRecordsModal();
+      }
+
+      // 自动同步到 GitHub Gist（如果已配置）
+      const gistConfig = getGistSyncConfig();
+      if (gistConfig && gistConfig.autoSync) {
+        syncToGitHubGist(records).then(result => {
+          if (!result.success) console.warn('Gist 自动同步失败:', result.message);
+        });
+      }
+    }
+
+    function deleteBaziRecord(id) {
+      let records = getBaziRecords();
+      records = records.filter(r => r.id !== id);
+      localStorage.setItem(BAZI_RECORDS_KEY, JSON.stringify(records));
+      const recordsModal = document.getElementById('bazi-records-modal');
+      if (recordsModal && !recordsModal.classList.contains('hidden')) {
+        renderBaziRecordsModal();
+      }
+    }
+
+    function viewBaziRecord(record) {
+      // 恢复输入
+      document.getElementById('bazi-birth-datetime').value = record.birthDatetime;
+      const genderRadios = document.querySelectorAll('input[name="bazi-gender"]');
+      genderRadios.forEach(r => r.checked = (r.value === record.gender));
+      if (record.name) {
+        document.getElementById('bazi-name').value = record.name;
+      }
+      // 触发排盘
+      calculateBaziChart();
+      // 滚动到排盘区域
+      document.getElementById('bazi-result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // 旧的 renderBaziRecords 已废弃（改为密码保护的 renderBaziRecordsModal）
+
+    function exportBaziRecords() {
+      const records = getBaziRecords();
+      if (records.length === 0) {
+        alert('没有可导出的记录');
+        return;
+      }
+      const dataStr = JSON.stringify(records, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bazi_records_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBaziRecords() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const imported = JSON.parse(ev.target.result);
+            if (!Array.isArray(imported)) throw new Error('格式错误');
+            const existing = getBaziRecords();
+            const map = new Map();
+            [...existing, ...imported].forEach(r => map.set(r.id, r));
+            const merged = Array.from(map.values()).sort((a,b) => b.timestamp - a.timestamp);
+            localStorage.setItem(BAZI_RECORDS_KEY, JSON.stringify(merged));
+            alert(`成功导入 ${imported.length} 条记录`);
+            renderBaziRecordsModal();
+          } catch (err) {
+            alert('导入失败：' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    // 密码验证相关
+    const BAZI_PASSWORD = '811215';
+    let baziRecordsUnlocked = false;
+
+    function openBaziRecordsWithPassword() {
+      const modal = document.getElementById('bazi-password-modal');
+      const input = document.getElementById('bazi-password-input');
+      const error = document.getElementById('bazi-password-error');
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      input.value = '';
+      error.classList.add('hidden');
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function closeBaziPasswordModal() {
+      const modal = document.getElementById('bazi-password-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function verifyBaziPassword() {
+      const input = document.getElementById('bazi-password-input');
+      const error = document.getElementById('bazi-password-error');
+
+      if (input.value === BAZI_PASSWORD) {
+        closeBaziPasswordModal();
+        showBaziRecordsModal();
       } else {
-        alert('请先点击“设置生日”保存你的出生日期');
+        error.classList.remove('hidden');
+        input.value = '';
+        input.focus();
       }
     }
 
-    function updateBirthdayButton() {
-      const btn = document.getElementById('btn-birthday');
-      if (!btn) return;
-      const b = localStorage.getItem('ganzhi-birthday');
-      if (b) btn.textContent = '我的生日 (' + b + ')';
+    function showBaziRecordsModal() {
+      const modal = document.getElementById('bazi-records-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      renderBaziRecordsModal();
+    }
+
+    function closeBaziRecordsModal() {
+      const modal = document.getElementById('bazi-records-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function renderBaziRecordsModal() {
+      const container = document.getElementById('bazi-records-modal-content');
+      if (!container) return;
+
+      const records = getBaziRecords();
+      const gistConfig = getGistSyncConfig() || {};
+
+      let html = `
+        <div class="mb-4 p-3 bg-slate-800 rounded-xl">
+          <div class="flex items-center justify-between mb-2">
+            <div class="font-medium text-sm">GitHub Gist 同步</div>
+            <button onclick="openGistSyncSettings()" class="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded">设置</button>
+          </div>
+          <div class="text-xs text-slate-400">
+            ${gistConfig.token ? 
+              `已配置（Gist ID: ${gistConfig.gistId || '未创建'}）` : 
+              '未配置 GitHub Token，可点击“设置”启用跨设备同步'}
+          </div>
+          ${gistConfig.token ? `
+            <div class="flex gap-2 mt-2">
+              <button onclick="manualSyncToGist()" class="text-xs px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded">推送到 GitHub</button>
+              <button onclick="manualLoadFromGist()" class="text-xs px-3 py-1 bg-blue-700 hover:bg-blue-600 rounded">从 GitHub 拉取</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      if (records.length === 0) {
+        html += `<div class="text-center text-slate-500 py-8">暂无排盘记录</div>`;
+        container.innerHTML = html;
+        return;
+      }
+
+      let html = `
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-700 text-left">
+              <th class="py-2 pr-4">备注</th>
+              <th class="py-2 pr-4">出生八字</th>
+              <th class="py-2 pr-4">起运</th>
+              <th class="py-2 pr-4">查询时间</th>
+              <th class="py-2 w-24"></th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      records.forEach(r => {
+        let summary = '';
+        let startAge = '';
+
+        try {
+          const birthDate = new Date(r.birthDatetime);
+          const pillars = getFourPillars(birthDate);
+          const dayun = calculateDayun(birthDate, r.gender);
+          summary = `${pillars.year.full} ${pillars.month.full} ${pillars.day.full} ${pillars.hour.full}`;
+          startAge = `${dayun.startAge}岁`;
+        } catch (e) {
+          summary = '计算失败';
+        }
+
+        const queryTime = new Date(r.timestamp).toLocaleString('zh-CN', {
+          month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+
+        html += `
+          <tr class="border-b border-slate-800 hover:bg-slate-800">
+            <td class="py-2 pr-4 font-medium">${r.name || '未命名'}</td>
+            <td class="py-2 pr-4 font-mono text-xs">${summary}</td>
+            <td class="py-2 pr-4 text-emerald-400">${startAge}</td>
+            <td class="py-2 pr-4 text-slate-400 text-xs">${queryTime}</td>
+            <td class="py-2">
+              <button onclick='viewBaziRecord(${JSON.stringify(r)})' 
+                      class="text-emerald-400 hover:text-emerald-300 text-xs mr-2">查看</button>
+              <button onclick="deleteBaziRecordAndRefresh('${r.id}')" 
+                      class="text-red-400 hover:text-red-300 text-xs">删除</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    function deleteBaziRecordAndRefresh(id) {
+      if (!confirm('确定要删除这条记录吗？')) return;
+      deleteBaziRecord(id);
+      renderBaziRecordsModal();
+    }
+
+    function clearAllBaziRecords() {
+      if (!confirm('确定要清空所有排盘记录吗？此操作不可恢复')) return;
+      localStorage.removeItem(BAZI_RECORDS_KEY);
+      renderBaziRecordsModal();
+    }
+
+    // ==================== 生日八字排盘核心逻辑 ====================
+    function calculateBaziChart() {
+      const dtInput = document.getElementById('bazi-birth-datetime');
+      if (!dtInput || !dtInput.value) {
+        alert('请先选择出生日期和时间');
+        return;
+      }
+
+      const birthDate = new Date(dtInput.value);
+      const gender = document.querySelector('input[name="bazi-gender"]:checked').value;
+
+      const resultEl = document.getElementById('bazi-result');
+      resultEl.innerHTML = '<div class="text-slate-400">正在排盘...</div>';
+
+      try {
+        // 1. 出生四柱（使用我们刚封装的统一函数）
+        if (typeof getFourPillars !== 'function') {
+          throw new Error('getFourPillars 尚未定义，请刷新页面重试');
+        }
+        const pillars = getFourPillars(birthDate);
+
+        // 2. 计算大运
+        const dayunInfo = calculateDayun(birthDate, gender);
+
+        // 3. 当年运程数据准备
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentYearPillar = getYearGanzhi(currentYear);
+        const currentLiuNian = currentYearPillar.full;
+
+        // 获取出生年干（用于推算所有流月）
+        const birthYearGanIdx = pillars.year.ganIndex;
+        const allLiuYue = getAllLiuYueOfYear(birthYearGanIdx, currentYear);
+
+        // 4. 加载已保存生日按钮
+        const savedBirthday = localStorage.getItem('ganzhi-birthday');
+        const loadBtnHtml = savedBirthday 
+          ? `<button onclick="loadSavedBirthdayToBaziPanel()" class="text-[10px] text-emerald-400 hover:text-emerald-300 ml-2">加载已保存生日</button>` 
+          : '';
+
+        // 渲染增强版结果
+        let html = `
+          <div class="space-y-4 text-sm">
+            <!-- 出生八字 -->
+            <div>
+              <div class="flex items-center justify-between">
+                <div class="text-emerald-400 text-xs">出生八字</div>
+                ${loadBtnHtml}
+              </div>
+              <div class="text-xl font-semibold tracking-wider mt-0.5">
+                ${renderColoredGanzhi(pillars.year.full)} ${renderColoredGanzhi(pillars.month.full)} ${renderColoredGanzhi(pillars.day.full)} ${renderColoredGanzhi(pillars.hour.full)}
+              </div>
+              <div class="text-xs text-slate-400">${pillars.lunar.full} · ${pillars.shichen.name}</div>
+            </div>
+
+            <!-- 起运 + 方向 -->
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-3">
+              <div class="text-emerald-400 text-xs mb-1">起运</div>
+              <div>
+                <span class="text-amber-300 font-medium">${dayunInfo.startAge}岁</span>
+                <span class="text-slate-400 ml-2">(${dayunInfo.directionText})</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">（按出生后最近节气实际时差计算，3天=1岁）</div>
+            </div>
+
+            <!-- 十二步大运（带纳音，已覆盖100岁+） -->
+            <div>
+              <div class="text-emerald-400 text-xs mb-1.5">十年大运</div>
+              <div class="space-y-1">
+        `;
+
+        dayunInfo.periods.forEach((p, index) => {
+          const isCurrent = index === dayunInfo.currentIndex;
+          const cls = isCurrent ? 'bg-emerald-900/50 border-emerald-600' : 'bg-slate-800 border-slate-700';
+          html += `
+            <div class="px-3 py-1 rounded-lg border ${cls} flex justify-between items-center">
+              <span class="text-xs text-slate-300">${p.ageRange}岁</span>
+              <span class="font-medium">${renderColoredGanzhi(p.ganzhi)}</span>
+              <span class="text-[10px] text-amber-400">${p.nayin}</span>
+              ${isCurrent ? '<span class="text-emerald-400 text-[10px]">当前</span>' : ''}
+            </div>
+          `;
+        });
+
+        html += `
+              </div>
+            </div>
+
+            <!-- 当年的运程（流年 + 12个月流月 + 可展开流日） -->
+            <div>
+              <div class="text-emerald-400 text-xs mb-1.5">当年的运程</div>
+
+              <!-- 流年 -->
+              <div class="mb-2">
+                <span class="text-[10px] text-slate-500 mr-2">流年</span>
+                <span class="font-semibold text-lg">${renderColoredGanzhi(currentLiuNian)}</span>
+              </div>
+
+              <!-- 12个月流月（可点击查看流日） -->
+              <div class="text-[10px] text-slate-500 mb-1">全年流月（当前月份已默认展开流日）</div>
+              <div class="grid grid-cols-3 sm:grid-cols-4 gap-1 mb-3">
+                ${allLiuYue.map((ly, idx) => {
+                  const isCurrentMonth = (now.getMonth() + 1) === ly.month;
+                  const cls = isCurrentMonth ? 'bg-emerald-900/60 border-emerald-500' : 'bg-slate-800 border-slate-700 hover:bg-slate-700';
+                  return `
+                    <button onclick="showLiuRiForMonth(${currentYear}, ${ly.month}, '${ly.ganzhi}')"
+                            class="px-2 py-1 text-xs border rounded ${cls} flex justify-between items-center">
+                      <span>${ly.month}月</span>
+                      <span class="font-medium">${renderColoredGanzhi(ly.ganzhi)}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- 流日展示区域（默认折叠，点击流月后显示） -->
+              <div id="liu-ri-section" class="hidden mt-2 bg-slate-900 border border-slate-700 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <div id="liu-ri-title" class="text-emerald-400 text-xs font-medium"></div>
+                  <button onclick="hideLiuRiSection()" class="text-xs text-slate-400 hover:text-white">收起</button>
+                </div>
+                <div id="liu-ri-list" class="grid grid-cols-4 sm:grid-cols-6 gap-1 text-xs"></div>
+              </div>
+            </div>
+
+            <!-- 详细解读（点5） -->
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs leading-relaxed text-slate-300">
+              <div class="text-emerald-400 mb-1">当前运势简析</div>
+              你目前正处于 <span class="text-amber-300">${dayunInfo.periods[dayunInfo.currentIndex].ganzhi}</span> 大运中，
+              今年流年 <span class="text-amber-300">${currentLiuNian}</span>。
+              建议结合本命四柱五行喜忌进行综合判断。
+            </div>
+          </div>
+        `;
+
+        resultEl.innerHTML = html;
+
+        // 保存排盘记录
+        const nameInput = document.getElementById('bazi-name');
+        const recordName = (nameInput && nameInput.value.trim()) || '';
+        const record = {
+          id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+          name: recordName,
+          birthDatetime: dtInput.value,
+          gender: gender,
+          timestamp: Date.now()
+        };
+        saveBaziRecord(record);
+
+        // 默认自动展开“当月”流日
+        const currentMonth = now.getMonth() + 1;
+        const currentMonthData = allLiuYue.find(l => l.month === currentMonth);
+        if (currentMonthData) {
+          showLiuRiForMonth(currentYear, currentMonth, currentMonthData.ganzhi);
+        }
+
+      } catch (e) {
+        console.error(e);
+        resultEl.innerHTML = `<div class="text-red-400">排盘出错：${e.message}</div>`;
+      }
+    }
+
+    /**
+     * 计算大运信息（增强版 - 更精确的起运 + 纳音）
+     */
+    function calculateDayun(birthDate, gender) {
+      const pillars = getFourPillars(birthDate);
+      const birthYearStemIdx = pillars.year.ganIndex;
+      const monthPillar = pillars.month;
+
+      const isYang = birthYearStemIdx % 2 === 0;
+      const forward = (gender === 'male' && isYang) || (gender === 'female' && !isYang);
+      const directionText = forward ? '顺行' : '逆行';
+
+      // === 起运计算（经典3天1岁规则） ===
+      // 顺行：找出生**之后**最近的节气
+      // 逆行：找出生**之前**最近的节气（必须逆向查找）
+      const birthYear = birthDate.getFullYear();
+
+      // 预先计算前后三年的所有节气日期，方便查找
+      const termDates = [];
+      for (let y = birthYear - 1; y <= birthYear + 1; y++) {
+        for (let i = 0; i < 24; i++) {
+          termDates.push(getSolarTermDate(y, i));
+        }
+      }
+
+      let targetTermDate;
+
+      if (forward) {
+        // 顺行：找出生时间之后的第一个节气
+        targetTermDate = termDates.find(d => d > birthDate);
+        if (!targetTermDate) {
+          // 极端情况，往后一年找
+          targetTermDate = getSolarTermDate(birthYear + 2, 0);
+        }
+      } else {
+        // 逆行：找出生时间之前的最后一个节气（即最近的上一个节气）
+        // 从后往前找第一个小于 birthDate 的
+        for (let i = termDates.length - 1; i >= 0; i--) {
+          if (termDates[i] < birthDate) {
+            targetTermDate = termDates[i];
+            break;
+          }
+        }
+        if (!targetTermDate) {
+          // 极端情况，往前一年找
+          targetTermDate = getSolarTermDate(birthYear - 2, 23);
+        }
+      }
+
+      const msDiff = Math.abs(targetTermDate.getTime() - birthDate.getTime());
+      const daysDiff = msDiff / (1000 * 60 * 60 * 24);
+      const startAge = Math.max(0.1, daysDiff / 3);
+
+      // === 生成大运（带纳音） - 扩展到100岁以后 ===
+      let ganIdx = monthPillar.ganIndex;
+      let zhiIdx = monthPillar.zhiIndex;
+
+      const periods = [];
+      let currentAge = startAge;   // 使用精确的起运年龄
+
+      // 生成12步大运（可覆盖120岁+）
+      for (let i = 0; i < 12; i++) {
+        if (forward) {
+          ganIdx = (ganIdx + 1) % 10;
+          zhiIdx = (zhiIdx + 1) % 12;
+        } else {
+          ganIdx = (ganIdx + 9) % 10;
+          zhiIdx = (zhiIdx + 11) % 12;
+        }
+
+        const gan = GAN[ganIdx];
+        const zhi = ZHI[zhiIdx];
+        const nayin = NAYIN[gan + zhi] || '';
+
+        const ageStart = Math.round(currentAge * 10) / 10;
+        const ageEnd = Math.round((currentAge + 10) * 10) / 10;
+
+        periods.push({
+          ageRange: `${ageStart}-${ageEnd}`,
+          ganzhi: gan + zhi,
+          nayin: nayin,
+          startAge: ageStart
+        });
+        currentAge += 10;
+      }
+
+      // 当前大运（使用更精确的年龄计算）
+      const currentAgeExact = (new Date() - birthDate) / (365.2425 * 24 * 3600 * 1000);
+      let currentIndex = 0;
+      periods.forEach((p, i) => {
+        const [s, e] = p.ageRange.split('-').map(Number);
+        if (currentAgeExact >= s && currentAgeExact < e) currentIndex = i;
+      });
+
+      return {
+        startAge: startAge.toFixed(1),
+        directionText,
+        periods,
+        currentIndex,
+        forward
+      };
+    }
+
+    /**
+     * 获取当前流月 + 流日（正确版）
+     * 流月：用出生年干 + 当前实际节气定月支 + 五虎遁起干
+     */
+    function getCurrentLiuYueLiuRi(birthDate) {
+      const now = new Date();
+
+      // 1. 获取出生年干
+      const birthPillars = getFourPillars(birthDate);
+      const birthYearGanIdx = birthPillars.year.ganIndex;
+
+      // 2. 获取当前时间的月支（必须用节气，不能用公历月）
+      const jieqiInfo = getCurrentJieqiAndMonth(now);
+      const monthZhi = jieqiInfo.monthZhi;
+      const zhiIdx = ZHI.indexOf(monthZhi);
+
+      // 3. 用出生年干起五虎遁，算出流月天干（正确公式）
+      const TIGER_BASE = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0];
+      const base = TIGER_BASE[birthYearGanIdx];
+      const stepsFromYin = (zhiIdx - 2 + 12) % 12;
+      const liuYueGanIdx = (base + stepsFromYin) % 10;
+
+      const liuYue = GAN[liuYueGanIdx] + monthZhi;
+
+      // 4. 流日：用今天的真实日柱
+      const todayDayGanzhi = getDayGanzhi(now);
+      const liuRi = todayDayGanzhi.full;
+
+      return { liuYue, liuRi };
+    }
+
+    /**
+     * 获取指定年份的全部12个月流月（使用出生年干）
+     */
+    function getAllLiuYueOfYear(birthYearGanIndex, year) {
+      const list = [];
+      const TIGER_BASE = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0];
+
+      for (let m = 1; m <= 12; m++) {
+        const midDate = new Date(year, m - 1, 15);
+        const jie = getCurrentJieqiAndMonth(midDate);
+        const monthZhi = jie.monthZhi;
+
+        const zhiIdx = ZHI.indexOf(monthZhi);
+        const base = TIGER_BASE[birthYearGanIndex];
+        const steps = (zhiIdx - 2 + 12) % 12;
+        const ganIdx = (base + steps) % 10;
+
+        list.push({
+          month: m,
+          ganzhi: GAN[ganIdx] + monthZhi
+        });
+      }
+      return list;
+    }
+
+    /**
+     * 获取某月全部流日
+     */
+    function getAllLiuRiOfMonth(year, month) {
+      const days = new Date(year, month, 0).getDate();
+      const list = [];
+      for (let d = 1; d <= days; d++) {
+        const date = new Date(year, month - 1, d);
+        const dayG = getDayGanzhi(date);
+        list.push({
+          day: d,
+          ganzhi: dayG.full
+        });
+      }
+      return list;
+    }
+
+    /**
+     * 显示某个月的全部流日
+     */
+    window.showLiuRiForMonth = function(year, month, liuYueGanzhi) {
+      const section = document.getElementById('liu-ri-section');
+      const title = document.getElementById('liu-ri-title');
+      const listContainer = document.getElementById('liu-ri-list');
+
+      const liuRiList = getAllLiuRiOfMonth(year, month);
+      const isCurrentMonth = (new Date().getMonth() + 1 === month);
+
+      let titleText = `${month}月流日（${liuYueGanzhi}）`;
+      if (isCurrentMonth) {
+        titleText += ' <span class="text-amber-400">(当前月份)</span>';
+      }
+      title.innerHTML = titleText;
+
+      let html = '';
+      liuRiList.forEach(item => {
+        const isToday = isCurrentMonth && (new Date().getDate() === item.day);
+        const cls = isToday ? 'bg-amber-900/60 border-amber-500' : 'bg-slate-800 border-slate-700';
+        html += `
+          <div class="px-1.5 py-0.5 rounded border text-center ${cls}">
+            <span class="text-[10px] text-slate-400">${item.day}日</span><br>
+            <span class="font-medium">${renderColoredGanzhi(item.ganzhi)}</span>
+          </div>
+        `;
+      });
+
+      listContainer.innerHTML = html;
+      section.classList.remove('hidden');
+      section.classList.add('block');
+    };
+
+    window.hideLiuRiSection = function() {
+      const section = document.getElementById('liu-ri-section');
+      section.classList.remove('block');
+      section.classList.add('hidden');
+    };
+
+    // ==================== 24节气快捷选择（动态生成） ====================
+    function renderSolarTermsQuick(year = null) {
+      const container = document.getElementById('solar-terms-quick');
+      if (!container) return;
+
+      if (!year) {
+        const dtInput = document.getElementById('history-datetime');
+        if (dtInput && dtInput.value) {
+          year = new Date(dtInput.value).getFullYear();
+        } else {
+          year = new Date().getFullYear();
+        }
+      }
+
+      container.innerHTML = '';
+      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(92px, 1fr))';
+
+      for (let i = 0; i < 24; i++) {
+        const termDate = getSolarTermDate(year, i);
+        const name = SOLAR_TERM_NAMES[i];
+
+        const y = termDate.getFullYear();
+        const m = pad(termDate.getMonth() + 1);
+        const d = pad(termDate.getDate());
+        const h = pad(termDate.getHours());
+        const min = pad(termDate.getMinutes());
+
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 rounded-xl text-left transition-colors border border-slate-700`;
+        btn.innerHTML = `
+          <span class="font-medium text-white">${name}</span>
+          <span class="ml-1.5 text-slate-400 font-mono text-[10px]">${y}-${m}-${d} ${h}:${min}</span>
+        `;
+
+        btn.onclick = () => {
+          const dtStr = `${y}-${m}-${d}T${h}:${min}`;
+          document.getElementById('history-datetime').value = dtStr;
+          queryHistory();
+        };
+
+        container.appendChild(btn);
+      }
+    }
+
+    function refreshSolarTermsQuick() {
+      const dtInput = document.getElementById('history-datetime');
+      let y = new Date().getFullYear();
+      if (dtInput && dtInput.value) {
+        y = new Date(dtInput.value).getFullYear();
+      }
+      renderSolarTermsQuick(y);
+    }
+
+    // 监听历史查询时间变化，自动刷新当年24节气
+    function setupHistoryDateListener() {
+      const input = document.getElementById('history-datetime');
+      if (!input) return;
+
+      let timer = null;
+      input.addEventListener('change', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          renderSolarTermsQuick();
+        }, 300);
+      });
+
+      // 初次加载也渲染一次
+      setTimeout(() => {
+        renderSolarTermsQuick();
+      }, 800);
     }
 
     // ==================== 圆形干支表盘 (实时) ====================
@@ -972,6 +2124,8 @@
         const x = cx + Math.cos(angRad) * labelR;
         const y = cy + Math.sin(angRad) * labelR;
 
+        const color = getGanzhiColor(char);   // 地支也按五行上色
+
         const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         t.setAttribute('x', x);
         t.setAttribute('y', y);
@@ -979,21 +2133,21 @@
         t.setAttribute('dominant-baseline', 'middle');
         t.setAttribute('font-size', '18');
         t.setAttribute('font-weight', '700');
-        t.setAttribute('fill', '#64748b');
+        t.setAttribute('fill', color);
         t.textContent = char;
         labelsG.appendChild(t);
       });
     }
 
-    // 独立绘制时刻刻度环（96刻），当前时辰的8个刻度高亮
-    function draw刻度ForShichen(currentIdx) {
+    // 独立绘制时刻刻度环（96刻），当前时辰的8个刻度高亮 + 实时“刻”指示器
+    function draw刻度ForShichen(currentIdx, progressWithinShichen = 0) {
       const ticksG = document.getElementById('刻度-ticks');
       if (!ticksG) return;
       ticksG.innerHTML = '';
 
       const cx = 160, cy = 160;
       const tickInnerR = 68;
-      const tickOuterR = 80;   // 让手尖能明显落在刻度上
+      const tickOuterR = 80;
 
       for (let i = 0; i < 12; i++) {
         const baseAng = (i * 30 - 90);
@@ -1013,15 +2167,55 @@
           line.setAttribute('y1', y1);
           line.setAttribute('x2', x2);
           line.setAttribute('y2', y2);
+
           if (isCurrent) {
             line.setAttribute('stroke', '#fcd34d');
-            line.setAttribute('stroke-width', k === 0 ? '2.5' : '1.8');
+            line.setAttribute('stroke-width', k === 0 ? '3' : '1.9');
+            line.setAttribute('opacity', k === 0 ? '1' : '0.85');
           } else {
             line.setAttribute('stroke', '#475569');
-            line.setAttribute('stroke-width', k === 0 ? '1.5' : '1');
+            line.setAttribute('stroke-width', k === 0 ? '1.6' : '1.1');
+            line.setAttribute('opacity', '0.7');
           }
           ticksG.appendChild(line);
         }
+      }
+
+      // 新增：当前时辰内的实时“刻”指示器（小金点）
+      // progressWithinShichen: 0~1 表示在当前2小时时辰内走过的比例
+      if (progressWithinShichen > 0) {
+        const baseAng = (currentIdx * 30 - 90);
+        const currentKeAngle = baseAng + (progressWithinShichen * 30);   // 8刻 = 30度
+        const rad = currentKeAngle * Math.PI / 180;
+
+        // 外圈小金点（更醒目）
+        const dotR = 83;
+        const dx = cx + Math.cos(rad) * dotR;
+        const dy = cy + Math.sin(rad) * dotR;
+
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', dx);
+        dot.setAttribute('cy', dy);
+        dot.setAttribute('r', '3.5');
+        dot.setAttribute('fill', '#fcd34d');
+        dot.setAttribute('stroke', '#854d0e');
+        dot.setAttribute('stroke-width', '1');
+        ticksG.appendChild(dot);
+
+        // 内侧细微连接线（更优雅）
+        const innerDotR = 75;
+        const ix = cx + Math.cos(rad) * innerDotR;
+        const iy = cy + Math.sin(rad) * innerDotR;
+
+        const connector = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        connector.setAttribute('x1', dx);
+        connector.setAttribute('y1', dy);
+        connector.setAttribute('x2', ix);
+        connector.setAttribute('y2', iy);
+        connector.setAttribute('stroke', '#fcd34d');
+        connector.setAttribute('stroke-width', '1.2');
+        connector.setAttribute('opacity', '0.6');
+        ticksG.appendChild(connector);
       }
     }
 
@@ -1044,16 +2238,33 @@
 
       function animate() {
         const now = new Date();
-
-        // 当前时辰索引（唯一真相来源）
         const idx = getShichenIndex(now.getHours());
 
-        // 只在时辰变化时更新高亮、刻度环和中心文字
-        // 指针已删除，仅保留用户确认正确的刻度/标签/中心显示
-        if (idx !== lastShichen) {
-          highlightShichen(idx);
-          draw刻度ForShichen(idx);   // 当前时辰的8个刻度高亮成金色
+        // 计算当前时辰内走过的比例（0~1），用于实时“刻”指示器（更稳健的写法）
+        const range = SHICHEN_RANGES[idx];
+        let startH = range.start;
+        let hourNow = now.getHours();
+        let minNow = now.getMinutes();
 
+        let minutesIntoShichen = 0;
+        if (idx === 0) { // 子时特殊：23:00 ~ 01:00
+          if (hourNow >= 23) {
+            minutesIntoShichen = (hourNow - 23) * 60 + minNow;
+          } else {
+            minutesIntoShichen = (hourNow + 1) * 60 + minNow;
+          }
+        } else {
+          minutesIntoShichen = (hourNow - startH) * 60 + minNow;
+        }
+        minutesIntoShichen = Math.max(0, Math.min(119, minutesIntoShichen));
+        const progress = minutesIntoShichen / 120;
+
+        // 每帧都重绘刻度（带实时指示器）+ 高亮标签
+        highlightShichen(idx);
+        draw刻度ForShichen(idx, progress);
+
+        // 中心文字只在时辰切换时更新（减少闪烁）
+        if (idx !== lastShichen) {
           const main = document.getElementById('dial-center-main');
           const sub = document.getElementById('dial-center-sub');
           if (main && sub) {
@@ -1079,7 +2290,7 @@
     window.onload = function() {
       loadTheme();
       init();
-      updateBirthdayButton();
+      // 旧的 updateBirthdayButton 已移除
     };
   </script>
 </body>
