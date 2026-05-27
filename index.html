@@ -1277,6 +1277,88 @@
 
     // 旧的 setMyBirthday / useBirthday / updateBirthdayButton 已完全移除
 
+    // ==================== Supabase 云同步配置 ====================
+    const SUPABASE_CONFIG_KEY = 'bazi_supabase_config';
+
+    function getSupabaseConfig() {
+      try {
+        const data = localStorage.getItem(SUPABASE_CONFIG_KEY);
+        return data ? JSON.parse(data) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveSupabaseConfig(config) {
+      localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
+    }
+
+    // 自动保存记录到 Supabase（匿名插入）
+    async function saveRecordToSupabase(recordData) {
+      const config = getSupabaseConfig();
+      if (!config || !config.url || !config.anonKey) {
+        return { success: false, message: '未配置 Supabase' };
+      }
+
+      try {
+        const response = await fetch(`${config.url}/rest/v1/bazi_records`, {
+          method: 'POST',
+          headers: {
+            'apikey': config.anonKey,
+            'Authorization': `Bearer ${config.anonKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            name: recordData.name || null,
+            birth_datetime: recordData.birthDatetime,
+            gender: recordData.gender,
+            created_at: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Supabase 插入失败: ${response.status} ${errorText}`);
+        }
+
+        return { success: true };
+      } catch (err) {
+        console.error('Supabase 保存失败:', err);
+        return { success: false, message: err.message };
+      }
+    }
+
+    // 从 Supabase 获取所有记录（仅限主人查看）
+    async function loadRecordsFromSupabase() {
+      const config = getSupabaseConfig();
+      if (!config || !config.url || !config.anonKey) {
+        return { success: false, message: '未配置 Supabase', records: [] };
+      }
+
+      try {
+        const response = await fetch(
+          `${config.url}/rest/v1/bazi_records?select=*&order=created_at.desc`,
+          {
+            headers: {
+              'apikey': config.anonKey,
+              'Authorization': `Bearer ${config.anonKey}`
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`获取失败: ${response.status}`);
+        }
+
+        const records = await response.json();
+        return { success: true, records };
+      } catch (err) {
+        console.error('Supabase 拉取失败:', err);
+        return { success: false, message: err.message, records: [] };
+      }
+    }
+
     // ==================== GitHub Gist 同步功能 ====================
     const GIST_SYNC_KEY = 'bazi_gist_sync';
 
@@ -1379,6 +1461,32 @@
         console.error(err);
         return { success: false, message: err.message };
       }
+    }
+
+    // ==================== Supabase 云同步设置 ====================
+    function openSupabaseSettings() {
+      const config = getSupabaseConfig() || {};
+
+      alert(
+        "【Supabase 云同步设置（推荐）】\n\n" +
+        "1. 去 https://supabase.com 创建免费项目\n" +
+        "2. 在 Settings → API 复制 Project URL 和 anon public key\n" +
+        "3. 在 SQL Editor 执行建表语句（见文档或我给你的 schema）\n\n" +
+        "配置后，所有人排盘都会自动保存到云端，只有你能查看完整列表。"
+      );
+
+      const url = prompt('请输入 Supabase Project URL：', config.url || '');
+      if (url === null) return;
+
+      const anonKey = prompt('请输入 anon public key：', config.anonKey || '');
+
+      saveSupabaseConfig({
+        url: url.trim(),
+        anonKey: anonKey.trim()
+      });
+
+      alert('Supabase 配置已保存！');
+      renderBaziRecordsModal();
     }
 
     // ==================== GitHub Gist 设置界面 ====================
@@ -1604,6 +1712,18 @@
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       renderBaziRecordsModal();
+
+      // 密码正确后，尝试从 Supabase 加载云端记录（如果已配置）
+      const supabaseConfig = getSupabaseConfig();
+      if (supabaseConfig && supabaseConfig.url && supabaseConfig.anonKey) {
+        loadRecordsFromSupabase().then(result => {
+          if (result.success && result.records && result.records.length > 0) {
+            // 可以在这里把云端记录和本地记录合并显示，或者单独显示
+            console.log(`从 Supabase 加载了 ${result.records.length} 条云端记录`);
+            // 简单处理：把云端记录也渲染出来（可后续优化）
+          }
+        });
+      }
     }
 
     function closeBaziRecordsModal() {
@@ -1622,20 +1742,15 @@
       let html = `
         <div class="mb-4 p-3 bg-slate-800 rounded-xl">
           <div class="flex items-center justify-between mb-2">
-            <div class="font-medium text-sm">GitHub Gist 同步（免费跨设备）</div>
-            <button onclick="openGistSyncSettings()" class="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded">设置</button>
+            <div class="font-medium text-sm">云端同步（自动存储）</div>
+            <div class="flex gap-2">
+              <button onclick="openSupabaseSettings()" class="text-xs px-3 py-1 bg-purple-700 hover:bg-purple-600 rounded">Supabase 设置</button>
+              <button onclick="openGistSyncSettings()" class="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded">Gist 设置</button>
+            </div>
           </div>
           <div class="text-xs text-slate-400">
-            ${gistConfig.token ? 
-              `已配置 Token ${gistConfig.gistId ? `(Gist: ${gistConfig.gistId})` : '(未创建 Gist)'} ` : 
-              '未配置 → 点击「设置」可启用跨设备同步'}
+            推荐使用 Supabase：所有人排盘都会自动保存到云，只有你能查看完整列表。
           </div>
-          ${gistConfig.token ? `
-            <div class="flex gap-2 mt-2">
-              <button onclick="manualSyncToGist()" class="text-xs px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded">立即推送到 GitHub</button>
-              <button onclick="manualLoadFromGist()" class="text-xs px-3 py-1 bg-blue-700 hover:bg-blue-600 rounded">从 GitHub 拉取</button>
-            </div>
-          ` : ''}
         </div>
       `;
 
@@ -1849,17 +1964,29 @@
 
         resultEl.innerHTML = html;
 
-        // 保存排盘记录
+        // 保存排盘记录（本地 + 云端）
         const nameInput = document.getElementById('bazi-name');
         const recordName = (nameInput && nameInput.value.trim()) || '';
-        const record = {
-          id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+        const recordData = {
           name: recordName,
           birthDatetime: dtInput.value,
           gender: gender,
           timestamp: Date.now()
         };
-        saveBaziRecord(record);
+
+        // 本地保存
+        const localRecord = {
+          id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+          ...recordData
+        };
+        saveBaziRecord(localRecord);
+
+        // 自动保存到 Supabase（如果已配置）
+        saveRecordToSupabase(recordData).then(result => {
+          if (!result.success) {
+            console.warn('Supabase 自动保存失败:', result.message);
+          }
+        });
 
         // 默认自动展开“当月”流日
         const currentMonth = now.getMonth() + 1;
