@@ -113,7 +113,7 @@
 <body class="bg-slate-950 text-slate-200 min-h-screen">
   <div class="max-w-5xl mx-auto px-6 py-8">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-2">
       <div>
         <h1 class="text-4xl font-bold tracking-tight title-font">干支时钟</h1>
         <p class="text-slate-400 mt-1 text-sm">实时四柱 · 生日八字排盘 · 云端记录</p>
@@ -139,7 +139,7 @@
     </div>
 
     <!-- Top Time Bar -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 mb-8">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 mb-2 relative">
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <div class="section-title text-slate-500 mb-1">公历时间</div>
@@ -149,21 +149,87 @@
         </div>
         
         <div class="text-right">
-          <div class="section-title text-slate-500 mb-1">农历</div>
+          <div class="text-xs text-slate-400 mb-0.5">农历</div>
           <div id="lunar-date" class="text-3xl font-medium text-amber-300"></div>
-          <div id="lunar-extra" class="text-slate-400 text-sm mt-0.5"></div>
+        </div>
+      </div>
+
+      <!-- 当前四柱 - 完整原版嵌入正中央（整体缩小50%） -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <div style="transform: scale(0.5); transform-origin: center;">
+          <div class="mb-2 px-1">
+            <div class="flex items-center justify-between mb-3 px-2">
+              <div>
+                <span class="section-title text-slate-500">当前四柱</span>
+                <span class="ml-2 text-xs px-2 py-0.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-400">立春换年 · 节气定月</span>
+              </div>
+              <div id="current-shichen" class="text-xs text-slate-400"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Year Pillar -->
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
+              <div class="pillar-label mb-3 flex items-center justify-between">
+                <span>年柱</span>
+              </div>
+              <div id="year-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
+              <div id="year-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
+              <div class="mt-3 text-xs text-slate-400" id="year-wuxing"></div>
+            </div>
+
+            <!-- Month Pillar -->
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
+              <div class="pillar-label mb-3 flex items-center justify-between">
+                <span>月柱</span>
+              </div>
+              <div id="month-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
+              <div id="month-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
+              <div class="mt-3 text-xs text-slate-400" id="month-wuxing"></div>
+            </div>
+
+            <!-- Day Pillar -->
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
+              <div class="pillar-label mb-3 flex items-center justify-between">
+                <span>日柱</span>
+              </div>
+              <div id="day-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
+              <div id="day-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
+              <div class="mt-3 text-xs text-slate-400" id="day-wuxing"></div>
+            </div>
+
+            <!-- Hour Pillar -->
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
+              <div class="pillar-label mb-3 flex items-center justify-between">
+                <span>时柱</span>
+              </div>
+              <div id="hour-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
+              <div id="hour-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
+              <div class="mt-3 text-xs text-slate-400" id="hour-wuxing"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 干支时辰时刻盘（12地支 + 96刻度环，当前时辰高亮金色） -->
-    <!-- 指针已按用户要求删除，仅保留刻度显示、标签切换、中心时辰文字 -->
-    <div class="mb-8 flex justify-center">
+
+
+    <!-- 干支时辰时刻盘 + 左侧标签（已移出盘面，避免重叠） -->
+    <div class="mt-2 mb-2 flex items-center justify-center gap-5">
+      <!-- 左侧十二时辰说明 -->
+      <div class="flex-shrink-0 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-center text-[11px] leading-tight text-amber-300 tracking-widest min-w-[92px]">
+        <div class="font-semibold text-sm mb-0.5">十二时辰</div>
+        <div class="text-[10px] text-slate-400">实时刻度</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">长安</div>
+        <div class="text-[9px] text-slate-500">34.27°N, 108.95°E</div>
+      </div>
+
       <div class="relative">
-        <svg id="ganzhi-dial" width="320" height="320" viewBox="0 0 320 320" style="display:block; filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));">
-          <!-- 外装饰边框 -->
-          <circle cx="160" cy="160" r="150" fill="#0f172a" stroke="#854d0e" stroke-width="7"/>
-          <circle cx="160" cy="160" r="140" fill="none" stroke="#d4af37" stroke-width="1.5" opacity="0.8"/>
+        <svg id="ganzhi-dial" width="600" height="600" viewBox="0 0 600 600" style="display:block; filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));">
+          <!-- 只保留轨道，不再画表盘自己的大界环 -->
+
+          <!-- 最外圈天体轨道环（长安经纬度参考，实时日月行星位置） -->
+          <g id="solar-ring"></g>
 
           <!-- 12 地支固定标签 -->
           <g id="shichen-labels"></g>
@@ -171,110 +237,15 @@
           <!-- 内时刻盘刻度圈 (96刻) -->
           <g id="刻度-ticks"></g>
 
-          <!-- 内装饰圈 -->
-          <circle cx="160" cy="160" r="60" fill="#1e2937" stroke="#854d0e" stroke-width="3"/>
-          <circle cx="160" cy="160" r="50" fill="#0f172a" stroke="#d4af37" stroke-width="1" opacity="0.5"/>
-
-          <!-- 中心显示 -->
-          <text id="dial-center-main" x="160" y="152" text-anchor="middle" font-size="24" fill="#fcd34d" font-weight="700">时辰</text>
-          <text id="dial-center-sub" x="160" y="175" text-anchor="middle" font-size="12" fill="#94a3b8">--:--</text>
-
-          <!-- 指针已完全移除（用户要求：刻度/高亮/中心文字保留） -->
-
-          <circle cx="160" cy="160" r="153" fill="none" stroke="#1e2937" stroke-width="2"/>
+          <!-- 中心显示（保留核心功能） -->
+          <text id="dial-center-main" x="300" y="285" text-anchor="middle" font-size="30" fill="#fcd34d" font-weight="700">时辰</text>
+          <text id="dial-center-sub" x="300" y="312" text-anchor="middle" font-size="14" fill="#94a3b8">--:--</text>
         </svg>
-
-        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-[10px] px-3 py-0.5 rounded-full text-amber-300 tracking-widest">十二时辰 · 实时刻度</div>
-      </div>
-    </div>
-
-    <!-- Four Pillars -->
-    <div class="mb-2 px-1">
-      <div class="flex items-center justify-between mb-3 px-2">
-        <div>
-          <span class="section-title text-slate-500">当前四柱</span>
-          <span class="ml-2 text-xs px-2 py-0.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-400">立春换年 · 节气定月</span>
-        </div>
-        <div id="current-shichen" class="text-xs text-slate-400"></div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <!-- Year Pillar -->
-      <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-        <div class="pillar-label mb-3 flex items-center justify-between">
-          <span>年柱</span>
-          <span class="text-[10px] text-slate-500">YEAR</span>
-        </div>
-        <div id="year-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-        <div id="year-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-        <div class="mt-3 text-xs text-slate-400" id="year-wuxing"></div>
-      </div>
-
-      <!-- Month Pillar -->
-      <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-        <div class="pillar-label mb-3 flex items-center justify-between">
-          <span>月柱</span>
-          <span class="text-[10px] text-slate-500">MONTH</span>
-        </div>
-        <div id="month-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-        <div id="month-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-        <div class="mt-3 text-xs text-slate-400" id="month-wuxing"></div>
-      </div>
-
-      <!-- Day Pillar -->
-      <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-        <div class="pillar-label mb-3 flex items-center justify-between">
-          <span>日柱</span>
-          <span class="text-[10px] text-slate-500">DAY</span>
-        </div>
-        <div id="day-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-        <div id="day-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-        <div class="mt-3 text-xs text-slate-400" id="day-wuxing"></div>
-      </div>
-
-      <!-- Hour Pillar -->
-      <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-        <div class="pillar-label mb-3 flex items-center justify-between">
-          <span>时柱</span>
-          <span class="text-[10px] text-slate-500">HOUR</span>
-        </div>
-        <div id="hour-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-        <div id="hour-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-        <div class="mt-3 text-xs text-slate-400" id="hour-wuxing"></div>
-      </div>
-    </div>
-
-    <!-- Solar Term + Progress -->
-    <div class="mt-8 bg-slate-900 border border-slate-700 rounded-3xl p-6">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <span class="section-title text-slate-400">当前节气</span>
-        </div>
-        <div id="next-jieqi" class="text-sm text-white font-medium"></div>
-        <div id="next-jieqi-time" class="text-sm text-amber-300 mt-0.5 font-mono font-medium tracking-wide"></div>
-      </div>
-      
-      <div class="flex items-baseline gap-3">
-        <div id="current-jieqi" class="text-4xl font-semibold text-white"></div>
-        <div id="jieqi-date" class="text-slate-400"></div>
-      </div>
-      
-      <div class="mt-4">
-        <div class="flex justify-between text-xs text-slate-400 mb-1.5">
-          <div>距离下一个节气</div>
-          <div id="jieqi-countdown" class="font-mono tabular-nums"></div>
-        </div>
-        <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-          <div id="jieqi-progress" 
-               class="h-2 bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-500"
-               style="width: 0%"></div>
-        </div>
       </div>
     </div>
 
     <!-- 历史查询 -->
-    <div class="mt-8 bg-slate-900 border border-slate-700 rounded-3xl p-6">
+    <div class="mt-2 bg-slate-900 border border-slate-700 rounded-3xl p-6">
       <div class="flex items-center justify-between mb-4">
         <div class="section-title text-slate-400">历史查询 / 任意日期四柱</div>
         <button onclick="queryHistoryToday()" class="text-xs px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">今天</button>
@@ -297,6 +268,7 @@
       <div class="mt-4 pt-4 border-t border-slate-700">
         <div class="flex items-center justify-between mb-2">
           <div class="text-[10px] text-slate-500">当年 24 节气（点击可查询精确时刻）</div>
+          <div class="text-[18px] text-amber-400 mt-0.5">点击各节气可查询28宿实时位置</div>
           <button onclick="refreshSolarTermsQuick()" 
                   class="text-[10px] px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-400">刷新</button>
         </div>
@@ -309,7 +281,7 @@
     </div>
 
     <!-- 新增：生日八字排盘专区 -->
-    <div class="mt-8 bg-slate-900 border border-slate-700 rounded-3xl p-6">
+    <div class="mt-2 bg-slate-900 border border-slate-700 rounded-3xl p-6">
       <div class="flex items-center justify-between mb-4">
         <div>
           <span class="section-title text-slate-400">生日八字排盘 · 大运流年</span>
@@ -415,7 +387,7 @@
     </div>
 
     <!-- Footer / Status -->
-    <div class="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500 px-1">
+    <div class="mt-2 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500 px-1">
       <div class="flex flex-col md:flex-row md:items-center gap-x-4 gap-y-1">
         <span>干支时钟 · 八字排盘（支持云端记录）</span>
         <span class="hidden md:inline text-slate-600">|</span>
@@ -956,8 +928,7 @@
       // 高精度农历
       const lunar = getLunar(now);
       const leapTag = lunar.isLeap ? '<span class="text-rose-400 text-xs ml-1">(闰)</span>' : '';
-      document.getElementById('lunar-date').innerHTML = `${lunar.year}年 ${lunar.monthName}${leapTag}`;
-      document.getElementById('lunar-extra').innerHTML = `农历 ${lunar.dayName}`;
+      document.getElementById('lunar-date').innerHTML = `${lunar.monthName}${leapTag}${lunar.dayName}`;
 
       // 干支计算
       const dayG = getDayGanzhi(now);
@@ -1002,29 +973,8 @@
       document.getElementById('current-shichen').innerHTML = 
         `当前时辰：${shichenName}时（${SHICHEN_RANGES[getShichenIndex(now.getHours())].start}:00-${SHICHEN_RANGES[getShichenIndex(now.getHours())].end}:00）`;
 
-      // 节气信息（使用高精度数据）
-      const st = jieqiInfo.solarTerm;
-      document.getElementById('current-jieqi').innerHTML = st.current.name;
-      document.getElementById('jieqi-date').innerHTML = `${st.current.date.getFullYear()}年${pad(st.current.date.getMonth()+1)}月${pad(st.current.date.getDate())}日`;
-
-      // 改进：显示下一个节气的具体时间（利用算法自带的分钟精度 + 优化显示）
-      const nextTimeEl = document.getElementById('next-jieqi-time');
-      const nextJieqiEl = document.getElementById('next-jieqi');
-      const nextTimeStr = st.nextTimeStr || (st.next && st.next.date ? formatSolarTermTimeLocal(st.next.date) : '');
-      
-      nextJieqiEl.innerHTML = `下一个：${st.next.name}`;
-      if (nextTimeEl) {
-        nextTimeEl.innerHTML = nextTimeStr ? `（${nextTimeStr}）` : '';
-      }
-
-      // 真实倒计时 + 进度条
-      document.getElementById('jieqi-countdown').innerHTML = 
-        `${st.daysToNext}天 ${st.hoursToNext}小时`;
-      document.getElementById('jieqi-progress').style.width = `${st.progress.toFixed(1)}%`;
-
-      // 生肖提示（年支）
-      const shengxiao = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'][yearG.zhiIndex];
-      // 可以扩展显示
+      // 节气信息计算仍保留（供四柱和历史查询使用），但原“当前节气框”模块已删除，不再更新DOM
+      // const st = jieqiInfo.solarTerm; ... （已移除对应DOM操作，避免报错）
 
       // 时辰盘由独立 RAF (startShichenClock) 驱动
       } catch (e) {
@@ -1123,8 +1073,39 @@
       // 全新干支时辰钟表初始化（完全重做版）
       createShichenDial();
       
+      // 首次绘制最外圈天体轨道环 + 太阳/月球/行星 + 28星宿
+      drawSolarRingForBeijing(new Date());
+      lastSolarDateStr = new Date().toDateString();
+      updateSunAndMoonPositions(new Date());
+
+      // 首次绘制28星宿环（默认使用当前实时位置）
+      const initialMoonAng = getMoonAngleOnDial(new Date());
+      drawLunarMansionsRing(initialMoonAng);
+
+      // 默认让28宿环对应当前节气的位置
+      const currentTermInfo = getCurrentSolarTerm(new Date());
+      // 找到当前节气在列表中的索引
+      let currentTermIndex = SOLAR_TERM_NAMES.indexOf(currentTermInfo.current.name);
+      if (currentTermIndex === -1) currentTermIndex = 0;
+      updateMansionsRotationForTerm(currentTermIndex);
+      
       // 首次渲染其他内容
       updateClock();
+
+      // 初始化中心时辰五行颜色
+      (function initCenterShichenColor() {
+        const now = new Date();
+        const idx = getShichenIndex(now.getHours());
+        const branch = ZHI[idx];
+        const main = document.getElementById('dial-center-main');
+        if (main) {
+          const wx = WUXING[branch];
+          const color = WUXING_COLOR[wx] || '#fcd34d';
+          main.setAttribute('fill', color);
+        }
+      })();
+
+
       
       // 每秒更新四柱、节气、农历等
       setInterval(updateClock, 1000);
@@ -1266,6 +1247,9 @@
       const local = `${y}-${m}-${d}T${hh}:${mm}`;
       document.getElementById('history-datetime').value = local;
       queryHistory();
+
+      // 重置28宿到今天实时位置
+      resetMansionsToNow();
     }
 
     function quickDate(dateStr) {
@@ -1875,6 +1859,18 @@
         const birthYearGanIdx = pillars.year.ganIndex;
         const allLiuYue = getAllLiuYueOfYear(birthYearGanIdx, currentYear);
 
+        // ==================== 十神分析数据准备 ====================
+        const dayMaster = pillars.day.gan;
+        const currentDayunStem = dayunInfo.periods[dayunInfo.currentIndex]?.ganzhi?.[0] || '';
+        const liuNianStem = currentLiuNian?.[0] || '';
+
+        const birthTenGods = getMainTenGods(pillars);
+        const dayunTenGod = getTenGod(dayMaster, currentDayunStem);
+        const liuNianTenGod = getTenGod(dayMaster, liuNianStem);
+
+        // 日主强弱判断
+        const dmStrength = judgeDayMasterStrength(pillars);
+
         // 4. 加载已保存生日按钮
         const savedBirthday = localStorage.getItem('ganzhi-birthday');
         const loadBtnHtml = savedBirthday 
@@ -1965,12 +1961,72 @@
               </div>
             </div>
 
-            <!-- 详细解读（点5） -->
-            <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs leading-relaxed text-slate-300">
-              <div class="text-emerald-400 mb-1">当前运势简析</div>
-              你目前正处于 <span class="text-amber-300">${dayunInfo.periods[dayunInfo.currentIndex].ganzhi}</span> 大运中，
-              今年流年 <span class="text-amber-300">${currentLiuNian}</span>。
-              建议结合本命四柱五行喜忌进行综合判断。
+            <!-- 全面运势简析（十神6项分析） -->
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-xs space-y-3 text-slate-300">
+              <div class="text-emerald-400 font-medium">当前运势全面简析</div>
+
+              <!-- 本命十神 -->
+              <div>
+                <div class="text-amber-300 font-medium mb-1">本命十神要点</div>
+                <div class="mb-1">
+                  ${Object.keys(birthTenGods).length > 0 
+                    ? Object.entries(birthTenGods).map(([god, count]) => `${god}${count > 1 ? `(${count})` : ''}`).join('、')
+                    : '本命十神力量较均衡'}
+                </div>
+                <div class="text-[10px] text-slate-400">
+                  日主${dmStrength.level}（得分${dmStrength.score}）→ ${dmStrength.advice}
+                </div>
+              </div>
+
+              <!-- 大运十神影响 -->
+              <div>
+                <div class="text-amber-300 font-medium mb-1">当前大运十神影响</div>
+                <div>
+                  当前走 <span class="text-white font-medium">${dayunInfo.periods[dayunInfo.currentIndex].ganzhi}</span> 大运，
+                  ${dayunTenGod ? `带来「${dayunTenGod}」之力。` : ''}
+                  ${['食神','伤官'].includes(dayunTenGod) ? '此大运利于才华发挥、表达与技术型发展。' : ''}
+                  ${['正财','偏财'].includes(dayunTenGod) ? '此大运财运机会较多，适合把握实际利益。' : ''}
+                  ${['正官','七杀'].includes(dayunTenGod) ? '此大运压力与责任并存，适合打磨能力与格局。' : ''}
+                </div>
+              </div>
+
+              <!-- 流年十神叠加 -->
+              <div>
+                <div class="text-amber-300 font-medium mb-1">流年十神叠加</div>
+                <div>
+                  今年流年 <span class="text-white font-medium">${currentLiuNian}</span>
+                  ${liuNianTenGod ? `，叠加「${liuNianTenGod}」` : ''}。
+                  ${['食神','伤官'].includes(liuNianTenGod) ? '今年利于创意、表达、学习或技术突破。' : ''}
+                  ${['正财','偏财'].includes(liuNianTenGod) ? '今年财运信息较多，适合积极争取。' : ''}
+                  ${['正官','七杀'].includes(liuNianTenGod) ? '今年压力或考核机会较多，需稳扎稳打。' : ''}
+                </div>
+              </div>
+
+              <!-- 十神简析（含印星与比劫） -->
+              <div>
+                <div class="text-amber-300 font-medium mb-1">本命十神简析（食神等六神 + 印比）</div>
+                <div class="leading-relaxed space-y-1">
+                  ${Object.keys(birthTenGods).some(g => ['食神','伤官'].includes(g)) 
+                    ? '你命中带食伤，表达力与才华是重要资源。' 
+                    : '你命中食伤力量较弱，需通过大运流年来补充创意与表达。'}
+                  
+                  ${['正财','偏财'].some(g => Object.keys(birthTenGods).includes(g)) 
+                    ? '财星有根，理财与实际利益获取能力较强。' 
+                    : '财星较弱，需注意主动争取机会，避免被动等待。'}
+                  
+                  ${['正官','七杀'].some(g => Object.keys(birthTenGods).includes(g)) 
+                    ? '官杀有力，适合在规则与挑战中建立权威。' 
+                    : '官杀较弱，需注意主动承担责任以提升格局。'}
+                  
+                  ${Object.keys(birthTenGods).some(g => ['正印','偏印'].includes(g)) 
+                    ? '印星有气，学习能力与贵人助力较强，适合走稳健或学术/技术路线。' 
+                    : '印星较弱，需通过大运补充助力，避免过于孤军奋战。'}
+                  
+                  ${Object.keys(birthTenGods).some(g => ['比肩','劫财'].includes(g)) 
+                    ? '比劫有力，独立性强，适合创业或需要自己主导的事务，但需注意人际与资源共享。' 
+                    : '比劫较弱，团队合作与借力能力较好，但独立决策时可能略显犹豫。'}
+                </div>
+              </div>
             </div>
           </div>
         `;
@@ -2190,6 +2246,104 @@
       return list;
     }
 
+    // ==================== 十神（食神等6项）分析工具 ====================
+    const TEN_GODS_MAP = {
+      '甲': { '甲':'比肩', '乙':'劫财', '丙':'食神', '丁':'伤官', '戊':'正财', '己':'偏财', '庚':'正官', '辛':'七杀', '壬':'正印', '癸':'偏印' },
+      '乙': { '甲':'劫财', '乙':'比肩', '丙':'伤官', '丁':'食神', '戊':'偏财', '己':'正财', '庚':'七杀', '辛':'正官', '壬':'偏印', '癸':'正印' },
+      '丙': { '甲':'偏印', '乙':'正印', '丙':'比肩', '丁':'劫财', '戊':'食神', '己':'伤官', '庚':'正财', '辛':'偏财', '壬':'正官', '癸':'七杀' },
+      '丁': { '甲':'正印', '乙':'偏印', '丙':'劫财', '丁':'比肩', '戊':'伤官', '己':'食神', '庚':'偏财', '辛':'正财', '壬':'七杀', '癸':'正官' },
+      '戊': { '甲':'七杀', '乙':'正官', '丙':'偏财', '丁':'正财', '戊':'比肩', '己':'劫财', '庚':'食神', '辛':'伤官', '壬':'正印', '癸':'偏印' },
+      '己': { '甲':'正官', '乙':'七杀', '丙':'正财', '丁':'偏财', '戊':'劫财', '己':'比肩', '庚':'伤官', '辛':'食神', '壬':'偏印', '癸':'正印' },
+      '庚': { '甲':'偏印', '乙':'正印', '丙':'七杀', '丁':'正官', '戊':'偏财', '己':'正财', '庚':'比肩', '辛':'劫财', '壬':'食神', '癸':'伤官' },
+      '辛': { '甲':'正印', '乙':'偏印', '丙':'正官', '丁':'七杀', '戊':'正财', '己':'偏财', '庚':'劫财', '辛':'比肩', '壬':'伤官', '癸':'食神' },
+      '壬': { '甲':'食神', '乙':'伤官', '丙':'偏印', '丁':'正印', '戊':'七杀', '己':'正官', '庚':'偏财', '辛':'正财', '壬':'比肩', '癸':'劫财' },
+      '癸': { '甲':'伤官', '乙':'食神', '丙':'正印', '丁':'偏印', '戊':'正官', '己':'七杀', '庚':'正财', '辛':'偏财', '壬':'劫财', '癸':'比肩' }
+    };
+
+    function getTenGod(dayMaster, targetStem) {
+      if (!dayMaster || !targetStem) return '';
+      return TEN_GODS_MAP[dayMaster]?.[targetStem] || '';
+    }
+
+    // 获取主要十神（重点关注食神、伤官、正财、偏财、正官、七杀这6项）
+    function getMainTenGods(pillars) {
+      const dayMaster = pillars.day.gan;
+      const stems = [
+        pillars.year.gan,
+        pillars.month.gan,
+        pillars.day.gan,
+        pillars.hour.gan
+      ];
+
+      const count = {};
+      stems.forEach(stem => {
+        if (stem === dayMaster) return;
+        const god = getTenGod(dayMaster, stem);
+        if (god) count[god] = (count[god] || 0) + 1;
+      });
+
+      return count;
+    }
+
+    // 简单日主强弱判断（用于十神分析参考）
+    function judgeDayMasterStrength(pillars) {
+      const dm = pillars.day.gan;
+      const dmElement = WUXING[dm];
+      const monthZhi = pillars.month.zhi;
+
+      // 季节得令简单判断
+      const seasonMap = {
+        '木': ['寅','卯','辰'],
+        '火': ['巳','午','未'],
+        '土': ['辰','戌','丑','未'],
+        '金': ['申','酉','戌'],
+        '水': ['亥','子','丑']
+      };
+
+      let score = 0;
+
+      // 1. 季节得令
+      if (seasonMap[dmElement] && seasonMap[dmElement].includes(monthZhi)) {
+        score += 3;
+      }
+
+      // 2. 印比支持（简化：看天干）
+      const supportGods = ['正印', '偏印', '比肩', '劫财'];
+      const drainGods = ['正财', '偏财', '正官', '七杀', '食神', '伤官'];
+
+      Object.entries(getMainTenGods(pillars)).forEach(([god, count]) => {
+        if (supportGods.includes(god)) score += count * 1.5;
+        if (drainGods.includes(god)) score -= count * 1.2;
+      });
+
+      // 3. 日支简单加分（根）
+      if (['寅','卯'].includes(pillars.day.zhi) && dmElement === '木') score += 1;
+      if (['巳','午'].includes(pillars.day.zhi) && dmElement === '火') score += 1;
+      // ... 可继续扩展
+
+      let level = '';
+      let advice = '';
+
+      if (score >= 5) {
+        level = '偏旺';
+        advice = '日主较强，喜财官，忌比劫印过重。';
+      } else if (score >= 2) {
+        level = '中和偏旺';
+        advice = '日主力量尚可，财官印皆可取。';
+      } else if (score >= -1) {
+        level = '中和';
+        advice = '日主中和，需看大运流年喜忌。';
+      } else if (score >= -4) {
+        level = '中和偏弱';
+        advice = '日主稍弱，喜印比，忌财官食伤过重。';
+      } else {
+        level = '偏弱';
+        advice = '日主较弱，需印比帮身，忌财官过重。';
+      }
+
+      return { level, advice, score };
+    }
+
     /**
      * 显示某个月的全部流日
      */
@@ -2247,6 +2401,19 @@
       container.innerHTML = '';
       container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(92px, 1fr))';
 
+      function getSolarTermColor(index) {
+        if (index >= 2 && index <= 7) return 'text-emerald-400';   // 立春~谷雨 绿色（春）
+        if (index >= 8 && index <= 13) return 'text-red-400';      // 立夏~大暑 红色（夏）
+        if (index >= 14 && index <= 19) return 'text-amber-400';   // 立秋~霜降 金色（秋）
+        return 'text-blue-400';                                    // 立冬~大寒 蓝色（冬）
+      }
+
+      // 确定当下的节气索引（用于高亮）
+      const now = new Date();
+      const currentSt = getCurrentSolarTerm(now);
+      const currentTermName = currentSt.current.name;
+      const currentTermIndex = SOLAR_TERM_NAMES.indexOf(currentTermName);
+
       for (let i = 0; i < 24; i++) {
         const termDate = getSolarTermDate(year, i);
         const name = SOLAR_TERM_NAMES[i];
@@ -2257,17 +2424,35 @@
         const h = pad(termDate.getHours());
         const min = pad(termDate.getMinutes());
 
+        const colorClass = getSolarTermColor(i);
+        const isCurrent = i === currentTermIndex;
+
         const btn = document.createElement('button');
-        btn.className = `px-2.5 py-1 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 rounded-xl text-left transition-colors border border-slate-700`;
+        btn.className = isCurrent
+          ? `px-3 py-1.5 bg-slate-700 hover:bg-slate-600 active:bg-slate-600 rounded-xl text-left transition-all border-2 border-amber-400 shadow-md`
+          : `px-2.5 py-1 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 rounded-xl text-left transition-colors border border-slate-700`;
+
+        const nameHTML = isCurrent
+          ? `<span class="font-bold text-base ${colorClass}">${name}</span>`
+          : `<span class="font-medium ${colorClass}">${name}</span>`;
+
+        const extra = isCurrent 
+          ? `<span class="ml-1 text-[9px] text-amber-400 font-medium">● 当前</span>` 
+          : '';
+
         btn.innerHTML = `
-          <span class="font-medium text-white">${name}</span>
+          ${nameHTML}
           <span class="ml-1.5 text-slate-400 font-mono text-[10px]">${y}-${m}-${d} ${h}:${min}</span>
+          ${extra}
         `;
 
         btn.onclick = () => {
           const dtStr = `${y}-${m}-${d}T${h}:${min}`;
           document.getElementById('history-datetime').value = dtStr;
           queryHistory();
+
+          // 28星宿环随节气变动位置（真实天体参考）
+          updateMansionsRotationForTerm(i);
         };
 
         container.appendChild(btn);
@@ -2302,13 +2487,182 @@
       }, 800);
     }
 
+    // ==================== 长安太阳起落计算（最外圈使用） ====================
+    // 长安（唐代都城，现代西安附近）经纬度 - 作为传统历法参考位置
+    const CHANGAN_LAT = 34.27;
+    const CHANGAN_LON = 108.95;
+
+    /**
+     * 长安日出日落精确计算（历史传统参考位置）
+     * 基于 SunCalc 核心算法精简版
+     */
+    function getChangAnSunriseSunset(date) {
+      const lat = CHANGAN_LAT;
+      const lng = CHANGAN_LON;
+
+      const rad = Math.PI / 180;
+      const dayMs = 1000 * 60 * 60 * 24;
+      const J1970 = 2440588;
+      const J2000 = 2451545;
+
+      function toJulian(d) { return d.getTime() / dayMs - 0.5 + J1970; }
+      function fromJulian(j) { return new Date((j + 0.5 - J1970) * dayMs); }
+      function toDays(d) { return toJulian(d) - J2000; }
+
+      const d = toDays(date);
+      const M = rad * (357.5291 + 0.98560028 * d);
+      const L = rad * (280.160 + 0.98564736 * d) + 0.3978 * Math.sin(M) * 2; // approx
+      const C = rad * (1.9148 * Math.sin(M) + 0.02 * Math.sin(2 * M) + 0.0003 * Math.sin(3 * M));
+      const P = L + C;
+      const decl = Math.asin(0.3978 * Math.sin(P));
+
+      const Jtransit = J2000 + 0.0009 + ((0.0053 * Math.sin(M) - 0.0069 * Math.sin(2 * P)) + (lng * rad / (2 * Math.PI)));
+      const cosH = (Math.sin(rad * -0.833) - Math.sin(rad * lat) * Math.sin(decl)) / (Math.cos(rad * lat) * Math.cos(decl));
+
+      if (cosH < -1 || cosH > 1) return { sunrise: null, sunset: null };
+
+      const w = Math.acos(cosH);
+      const Jset = Jtransit + w / (2 * Math.PI);
+      const Jrise = Jtransit - w / (2 * Math.PI);
+
+      let sunrise = fromJulian(Jrise);
+      let sunset = fromJulian(Jset);
+
+      // 调整到长安当地时间（东经108.95，约UTC+7:16）
+      sunrise = new Date(sunrise.getTime() + 8 * 3600000);
+      sunset = new Date(sunset.getTime() + 8 * 3600000);
+
+      // 强制回到当天
+      sunrise = new Date(date.getFullYear(), date.getMonth(), date.getDate(), sunrise.getHours(), sunrise.getMinutes());
+      sunset = new Date(date.getFullYear(), date.getMonth(), date.getDate(), sunset.getHours(), sunset.getMinutes());
+
+      return { sunrise, sunset };
+    }
+
+
+
+    /**
+     * 计算当前月球在24小时环上的角度（动态）
+     * 使用经典简化方法：月球相对太阳的滞后 ≈ 相位 * 24小时
+     */
+    function getMoonAngleOnDial(date) {
+      // 计算月相年龄（0 ~ 29.53 天）
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const hour = date.getHours() + date.getMinutes() / 60;
+
+      const c = Math.floor(year / 100);
+      const e = 2 - c + Math.floor(c / 4);
+      const jd = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + e - 1524.5;
+      const daysSinceNew = (jd + hour / 24 - 2451549.5) % 29.530588853;
+
+      const moonAge = ((daysSinceNew % 29.530588853) + 29.530588853) % 29.530588853;
+
+      // 月球滞后时间（小时）
+      const lagHours = (moonAge / 29.530588853) * 24;
+
+      // 当前太阳时 + 滞后 = 月球当前“时角”对应的钟面时间
+      const currentHour = date.getHours() + date.getMinutes() / 60 + date.getSeconds() / 3600;
+      let moonClockHour = (currentHour - lagHours + 24) % 24;
+
+      // 转成与太阳相同的角度系统（0点在顶部，顺时针）
+      return moonClockHour * 15 - 90;
+    }
+
+    /**
+     * 简化但动态的行星位置计算（开普勒近似）
+     * 返回与表盘一致的角度（0点顶部，顺时针）
+     */
+    function getPlanetAngle(planet, date) {
+      const periods = {
+        mercury: 87.97,
+        venus: 224.7,
+        mars: 686.98,
+        jupiter: 4332.59,
+        saturn: 10759.22
+      };
+
+      const epoch = new Date('2000-01-01T12:00:00Z');
+      const days = (date - epoch) / 86400000;
+
+      const period = periods[planet];
+      const meanLongitude = (days / period) * 360;
+
+      // 加入一点摄动让它更“真实”地动
+      const perturb = Math.sin(days / 30) * 3;
+
+      let angle = (meanLongitude + perturb + 360) % 360;
+
+      // 转成表盘坐标系（0点在顶部，顺时针）
+      return angle - 90;
+    }
+
     // ==================== 圆形干支表盘 (实时) ====================
     // 时刻盘：12地支 + 96刻度（每时辰8刻），当前时辰8刻高亮金色
     // 中心显示当前时辰名称 + 时间范围
     // 指针已按用户要求完全删除（保留刻度/标签/高亮/文字）
 
+    const DIAL_SIZE = 600;   // 模块外框再加大30%
+    const CX = DIAL_SIZE / 2;
+    const CY = DIAL_SIZE / 2;
+
+    // 所有轨道向中心靠拢（半径整体缩小）
+    const RINGS = {
+      solar: 155,
+      mercury: 168,
+      venus: 181,
+      mars: 196,
+      jupiter: 214,
+      saturn: 235
+    };
+
+    // 28星宿数据（四象 + 颜色）
+    const MANSIONS = {
+      east: {
+        name: '青龙',
+        color: '#22c55e',   // 绿色
+        mansions: ['角', '亢', '氐', '房', '心', '尾', '箕']
+      },
+      north: {
+        name: '玄武',
+        color: '#3b82f6',   // 蓝色
+        mansions: ['斗', '牛', '女', '虚', '危', '室', '壁']
+      },
+      west: {
+        name: '白虎',
+        color: '#d4af37',   // 金色
+        mansions: ['奎', '娄', '胃', '昴', '毕', '觜', '参']
+      },
+      south: {
+        name: '朱雀',
+        color: '#ef4444',   // 红色
+        mansions: ['井', '鬼', '柳', '星', '张', '翼', '轸']
+      }
+    };
+
     let dialRAF = null;
     let lastShichen = -1;
+    let lastSolarDateStr = '';
+
+    // 28星宿环的基准旋转角度（用于随节气变动位置）
+    let mansionsBaseRotation = 0;
+
+    function updateMansionsRotationForTerm(termIndex) {
+      // 每个节气对应15°，让28宿环随节气明显转动
+      mansionsBaseRotation = termIndex * (360 / 24) * -1;
+
+      const moonAng = getMoonAngleOnDial(new Date());
+      drawLunarMansionsRing(moonAng);
+    }
+
+    function resetMansionsToNow() {
+      const now = new Date();
+      const currentTermInfo = getCurrentSolarTerm(now);
+      let currentTermIndex = SOLAR_TERM_NAMES.indexOf(currentTermInfo.current.name);
+      if (currentTermIndex === -1) currentTermIndex = 0;
+      updateMansionsRotationForTerm(currentTermIndex);
+    }
 
     function createShichenDial() {
       const labelsG = document.getElementById('shichen-labels');
@@ -2316,14 +2670,13 @@
       labelsG.innerHTML = '';
 
       const branches = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-      const cx = 160, cy = 160;
-      const labelR = 108;
+      const labelR = 100;   // 放到时辰精细刻度圈（96刻）以内
 
       branches.forEach((char, i) => {
         const baseAng = (i * 30 - 90);
         const angRad = baseAng * Math.PI / 180;
-        const x = cx + Math.cos(angRad) * labelR;
-        const y = cy + Math.sin(angRad) * labelR;
+        const x = CX + Math.cos(angRad) * labelR;
+        const y = CY + Math.sin(angRad) * labelR;
 
         const color = getGanzhiColor(char);   // 地支也按五行上色
 
@@ -2332,7 +2685,7 @@
         t.setAttribute('y', y);
         t.setAttribute('text-anchor', 'middle');
         t.setAttribute('dominant-baseline', 'middle');
-        t.setAttribute('font-size', '18');
+        t.setAttribute('font-size', '16');
         t.setAttribute('font-weight', '700');
         t.setAttribute('fill', color);
         t.textContent = char;
@@ -2346,9 +2699,8 @@
       if (!ticksG) return;
       ticksG.innerHTML = '';
 
-      const cx = 160, cy = 160;
-      const tickInnerR = 68;
-      const tickOuterR = 80;
+      const tickInnerR = 110;
+      const tickOuterR = 130;
 
       for (let i = 0; i < 12; i++) {
         const baseAng = (i * 30 - 90);
@@ -2358,10 +2710,10 @@
           const tickAng = baseAng + (k * 30 / 8);
           const tickRad = tickAng * Math.PI / 180;
 
-          const x1 = cx + Math.cos(tickRad) * tickInnerR;
-          const y1 = cy + Math.sin(tickRad) * tickInnerR;
-          const x2 = cx + Math.cos(tickRad) * tickOuterR;
-          const y2 = cy + Math.sin(tickRad) * tickOuterR;
+          const x1 = CX + Math.cos(tickRad) * tickInnerR;
+          const y1 = CY + Math.sin(tickRad) * tickInnerR;
+          const x2 = CX + Math.cos(tickRad) * tickOuterR;
+          const y2 = CY + Math.sin(tickRad) * tickOuterR;
 
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           line.setAttribute('x1', x1);
@@ -2390,23 +2742,23 @@
         const rad = currentKeAngle * Math.PI / 180;
 
         // 外圈小金点（更醒目）
-        const dotR = 83;
-        const dx = cx + Math.cos(rad) * dotR;
-        const dy = cy + Math.sin(rad) * dotR;
+        const dotR = 135;
+        const dx = CX + Math.cos(rad) * dotR;
+        const dy = CY + Math.sin(rad) * dotR;
 
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', dx);
         dot.setAttribute('cy', dy);
-        dot.setAttribute('r', '3.5');
+        dot.setAttribute('r', '4.5');
         dot.setAttribute('fill', '#fcd34d');
         dot.setAttribute('stroke', '#854d0e');
         dot.setAttribute('stroke-width', '1');
         ticksG.appendChild(dot);
 
         // 内侧细微连接线（更优雅）
-        const innerDotR = 75;
-        const ix = cx + Math.cos(rad) * innerDotR;
-        const iy = cy + Math.sin(rad) * innerDotR;
+        const innerDotR = 120;
+        const ix = CX + Math.cos(rad) * innerDotR;
+        const iy = CY + Math.sin(rad) * innerDotR;
 
         const connector = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         connector.setAttribute('x1', dx);
@@ -2425,11 +2777,12 @@
       if (!g) return;
       Array.from(g.children).forEach((el, i) => {
         if (i === index) {
-          el.setAttribute('fill', '#fcd34d');
-          el.setAttribute('font-size', '21');
+          // 只用字号高亮当前时辰，保留地支本身的五行颜色
+          el.setAttribute('font-size', '20');
+          el.setAttribute('font-weight', '800');
         } else {
-          el.setAttribute('fill', '#64748b');
-          el.setAttribute('font-size', '18');
+          el.setAttribute('font-size', '16');
+          el.setAttribute('font-weight', '700');
         }
       });
     }
@@ -2441,7 +2794,7 @@
         const now = new Date();
         const idx = getShichenIndex(now.getHours());
 
-        // 计算当前时辰内走过的比例（0~1），用于实时“刻”指示器（更稳健的写法）
+        // 计算当前时辰内走过的比例（0~1），用于实时“刻”指示器
         const range = SHICHEN_RANGES[idx];
         let startH = range.start;
         let hourNow = now.getHours();
@@ -2464,21 +2817,365 @@
         highlightShichen(idx);
         draw刻度ForShichen(idx, progress);
 
-        // 中心文字只在时辰切换时更新（减少闪烁）
+        // 中心文字只在时辰切换时更新
         if (idx !== lastShichen) {
           const main = document.getElementById('dial-center-main');
           const sub = document.getElementById('dial-center-sub');
           if (main && sub) {
-            main.textContent = ZHI[idx] + '时';
+            const branch = ZHI[idx];
+            main.textContent = branch + '时';
+
+            // 五行颜色
+            const wx = WUXING[branch];
+            const color = WUXING_COLOR[wx] || '#fcd34d';
+            main.setAttribute('fill', color);
+
             const r = SHICHEN_RANGES[idx];
             sub.textContent = `${r.start}:00 - ${r.end}:00`.replace('24', '00');
           }
           lastShichen = idx;
         }
 
+        // 最外天体轨道环（民用时间）
+        const civilNow = new Date();
+        const civilDateStr = civilNow.toDateString();
+        if (civilDateStr !== lastSolarDateStr) {
+          lastSolarDateStr = civilDateStr;
+          drawSolarRingForBeijing(civilNow);
+          // 重新绘制28星宿（因为 innerHTML 清空了）
+          const moonAng = getMoonAngleOnDial(civilNow);
+          drawLunarMansionsRing(moonAng);
+        }
+
+        // 实时更新太阳 + 月球 + 行星位置
+        updateSunAndMoonPositions(civilNow);
+
         dialRAF = requestAnimationFrame(animate);
       }
       animate();
+    }
+
+    // ==================== 纯轨道环（只保留天体轨道，不画表盘界环） ====================
+    function drawSolarRingForBeijing(date) {
+      const g = document.getElementById('solar-ring');
+      if (!g) return;
+      g.innerHTML = '';
+
+      // 只绘制行星轨道环（紧凑、无多余装饰界环）
+      const ringOrder = ['saturn', 'jupiter', 'mars', 'venus', 'mercury', 'solar'];
+      const ringColors = {
+        solar: '#854d0e',
+        mercury: '#64748b',
+        venus: '#facc15',
+        mars: '#f87171',
+        jupiter: '#4ade80',   // 木星 - 绿色
+        saturn: '#854d0e'     // 土星 - 褐色
+      };
+
+      ringOrder.forEach(key => {
+        const r = RINGS[key];
+        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        ring.setAttribute('cx', CX);
+        ring.setAttribute('cy', CY);
+        ring.setAttribute('r', r);
+        ring.setAttribute('fill', 'none');
+        ring.setAttribute('stroke', ringColors[key]);
+        ring.setAttribute('stroke-width', key === 'solar' ? '1.8' : '1.1');
+        ring.setAttribute('opacity', '0.55');
+        g.appendChild(ring);
+      });
+
+      // 太阳环的白天高亮 + 日出日落（保留必要信息）
+      const sunTimes = getChangAnSunriseSunset(date);
+      if (sunTimes.sunrise && sunTimes.sunset) {
+        const outerR = RINGS.solar;
+        const circumference = 2 * Math.PI * outerR;
+        const dayHours = (sunTimes.sunset - sunTimes.sunrise) / 3600000;
+        const dayFraction = Math.max(0.05, Math.min(0.95, dayHours / 24));
+
+        function timeToAngle(d) {
+          const h = d.getHours() + d.getMinutes() / 60;
+          return (h * 15 - 90 + 360) % 360;
+        }
+
+        const riseAng = timeToAngle(sunTimes.sunrise);
+        const setAng  = timeToAngle(sunTimes.sunset);
+        const dashArray = circumference * dayFraction;
+        const dashOffset = -(riseAng / 360) * circumference;
+
+        const dayHighlight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dayHighlight.setAttribute('cx', CX);
+        dayHighlight.setAttribute('cy', CY);
+        dayHighlight.setAttribute('r', outerR);
+        dayHighlight.setAttribute('fill', 'none');
+        dayHighlight.setAttribute('stroke', '#fcd34d');
+        dayHighlight.setAttribute('stroke-width', '6');
+        dayHighlight.setAttribute('opacity', '0.25');
+        dayHighlight.setAttribute('stroke-linecap', 'round');
+        dayHighlight.setAttribute('stroke-dasharray', `${dashArray} ${circumference - dashArray}`);
+        dayHighlight.setAttribute('stroke-dashoffset', dashOffset);
+        g.appendChild(dayHighlight);
+
+        // 恢复日出日落精确时间显示（放在太阳轨道外侧）
+        const riseRad = riseAng * Math.PI / 180;
+        const setRad  = setAng * Math.PI / 180;
+
+        // 日出小标记
+        const riseX = CX + Math.cos(riseRad) * outerR;
+        const riseY = CY + Math.sin(riseRad) * outerR;
+        const riseMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        riseMarker.setAttribute('cx', riseX);
+        riseMarker.setAttribute('cy', riseY);
+        riseMarker.setAttribute('r', '3.2');
+        riseMarker.setAttribute('fill', '#fcd34d');
+        riseMarker.setAttribute('stroke', '#854d0e');
+        riseMarker.setAttribute('stroke-width', '1');
+        g.appendChild(riseMarker);
+
+        // 日落小标记
+        const setX = CX + Math.cos(setRad) * outerR;
+        const setY = CY + Math.sin(setRad) * outerR;
+        const setMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        setMarker.setAttribute('cx', setX);
+        setMarker.setAttribute('cy', setY);
+        setMarker.setAttribute('r', '3.2');
+        setMarker.setAttribute('fill', '#f59e0b');
+        setMarker.setAttribute('stroke', '#854d0e');
+        setMarker.setAttribute('stroke-width', '1');
+        g.appendChild(setMarker);
+
+        // 时间文字（外侧）
+        const fmt = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+        const riseTextX = CX + Math.cos(riseRad) * (outerR + 18);
+        const riseTextY = CY + Math.sin(riseRad) * (outerR + 18);
+        const riseText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        riseText.setAttribute('x', riseTextX);
+        riseText.setAttribute('y', riseTextY);
+        riseText.setAttribute('text-anchor', 'middle');
+        riseText.setAttribute('dominant-baseline', 'middle');
+        riseText.setAttribute('font-size', '9');
+        riseText.setAttribute('fill', '#fcd34d');
+        riseText.setAttribute('font-weight', '700');
+        riseText.textContent = '日出 ' + fmt(sunTimes.sunrise);
+        g.appendChild(riseText);
+
+        const setTextX = CX + Math.cos(setRad) * (outerR + 18);
+        const setTextY = CY + Math.sin(setRad) * (outerR + 18);
+        const setText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        setText.setAttribute('x', setTextX);
+        setText.setAttribute('y', setTextY);
+        setText.setAttribute('text-anchor', 'middle');
+        setText.setAttribute('dominant-baseline', 'middle');
+        setText.setAttribute('font-size', '9');
+        setText.setAttribute('fill', '#f59e0b');
+        setText.setAttribute('font-weight', '700');
+        setText.textContent = '日落 ' + fmt(sunTimes.sunset);
+        g.appendChild(setText);
+      }
+    }
+
+    // ==================== 28星宿环（最外圈，四象颜色区分，实时月宿高亮） ====================
+    function drawLunarMansionsRing(moonAngle) {
+      const g = document.getElementById('solar-ring');
+      if (!g) return;
+
+      // 清除旧的星宿内容
+      let mansionsGroup = document.getElementById('mansions-group');
+      if (mansionsGroup) {
+        mansionsGroup.innerHTML = '';
+      } else {
+        mansionsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        mansionsGroup.id = 'mansions-group';
+        g.appendChild(mansionsGroup);
+      }
+
+      const mansionsR = 272;
+
+      const allMansions = [];
+      ['east', 'north', 'west', 'south'].forEach(dir => {
+        MANSIONS[dir].mansions.forEach(m => {
+          allMansions.push({ name: m, color: MANSIONS[dir].color });
+        });
+      });
+
+      const total = allMansions.length;
+      const angleStep = 360 / total;
+
+      let currentIndex = Math.floor(((moonAngle + 360) % 360) / angleStep);
+      currentIndex = (currentIndex + total) % total;
+
+      allMansions.forEach((m, i) => {
+        const ang = (i * angleStep - 90 + 360) % 360;
+        const rad = ang * Math.PI / 180;
+
+        const x = CX + Math.cos(rad) * mansionsR;
+        const y = CY + Math.sin(rad) * mansionsR;
+
+        const isCurrent = (i === currentIndex);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('font-family', '"Noto Serif SC", "Noto Sans SC", serif');
+        text.setAttribute('font-size', isCurrent ? '13' : '11');
+        text.setAttribute('font-weight', isCurrent ? '700' : '600');
+        text.setAttribute('fill', m.color);
+        text.textContent = m.name;
+
+        mansionsGroup.appendChild(text);
+      });
+
+      // 应用整体旋转（用于随节气变动位置）
+      if (mansionsBaseRotation !== 0) {
+        mansionsGroup.setAttribute('transform', `rotate(${mansionsBaseRotation} ${CX} ${CY})`);
+      }
+    }
+
+    // ==================== 实时太阳 + 月球（纹理） + 五大行星（带名字 + 纹理） ====================
+    function updateSunAndMoonPositions(now) {
+      const g = document.getElementById('solar-ring');
+      if (!g) return;
+
+      // 太阳位置（使用民用时间）
+      const sunH = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
+      const sunAng = sunH * 15 - 90;
+      const sunRad = sunAng * Math.PI / 180;
+      const sunX = CX + Math.cos(sunRad) * RINGS.solar;
+      const sunY = CY + Math.sin(sunRad) * RINGS.solar;
+
+      const sunTimes = getChangAnSunriseSunset(now);
+      const isDay = sunTimes.sunrise && sunTimes.sunset && now >= sunTimes.sunrise && now <= sunTimes.sunset;
+
+      let sunGlow = document.getElementById('solar-sun-glow');
+      let sunCore = document.getElementById('solar-sun-core');
+      if (!sunGlow) { sunGlow = document.createElementNS('http://www.w3.org/2000/svg','circle'); sunGlow.id = 'solar-sun-glow'; sunGlow.setAttribute('r','10'); g.appendChild(sunGlow); }
+      if (!sunCore) { sunCore = document.createElementNS('http://www.w3.org/2000/svg','circle'); sunCore.id = 'solar-sun-core'; sunCore.setAttribute('r','6.5'); sunCore.setAttribute('stroke','#92400e'); sunCore.setAttribute('stroke-width','1.8'); g.appendChild(sunCore); }
+
+      sunGlow.setAttribute('fill', isDay ? '#fcd34d' : '#fb923c');
+      sunGlow.setAttribute('opacity', isDay ? '0.26' : '0.17');
+      sunCore.setAttribute('fill', isDay ? '#fcd34d' : '#fb923c');
+      sunGlow.setAttribute('cx', sunX); sunGlow.setAttribute('cy', sunY);
+      sunCore.setAttribute('cx', sunX); sunCore.setAttribute('cy', sunY);
+
+      // 月球（带纹理 + 名字“月”）
+      const moonAng = getMoonAngleOnDial(now);
+      const moonRad = moonAng * Math.PI / 180;
+      const moonX = CX + Math.cos(moonRad) * RINGS.solar;
+      const moonY = CY + Math.sin(moonRad) * RINGS.solar;
+
+      let moonGroup = document.getElementById('solar-moon-group');
+      if (!moonGroup) {
+        moonGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        moonGroup.id = 'solar-moon-group';
+        g.appendChild(moonGroup);
+      }
+      moonGroup.innerHTML = '';
+
+      const mBase = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      mBase.setAttribute('cx', moonX); mBase.setAttribute('cy', moonY);
+      mBase.setAttribute('r', '6.8'); mBase.setAttribute('fill', '#e2e8f0');
+      moonGroup.appendChild(mBase);
+
+      // 月面纹理（环形山）
+      [[-1.8,-1.6,1.6],[1.5,-1.2,1.3],[-0.8,2.2,1.9],[2.1,1.8,1.0]].forEach(([dx,dy,r]) => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', moonX + dx); c.setAttribute('cy', moonY + dy);
+        c.setAttribute('r', r); c.setAttribute('fill', '#64748b'); c.setAttribute('opacity', '0.5');
+        moonGroup.appendChild(c);
+      });
+
+      // 月球名字
+      const moonName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      moonName.setAttribute('x', moonX + 11);
+      moonName.setAttribute('y', moonY + 3);
+      moonName.setAttribute('font-size', '11');
+      moonName.setAttribute('fill', '#bae6fd');
+      moonName.setAttribute('font-weight', '700');
+      moonName.textContent = '月';
+      moonGroup.appendChild(moonName);
+
+      // 五大行星（纹理 + 单字名字）
+      const planets = [
+        { key: 'mercury', char: '水', color: '#94a3b8', size: 3.8 },
+        { key: 'venus',   char: '金', color: '#fef08c', size: 5.8 },
+        { key: 'mars',    char: '火', color: '#f87171', size: 4.5 },
+        { key: 'jupiter', char: '木', color: '#4ade80', size: 7.2 },   // 绿色
+        { key: 'saturn',  char: '土', color: '#854d0e', size: 6.2 }    // 褐色
+      ];
+
+      planets.forEach(p => {
+        const ang = getPlanetAngle(p.key, now);
+        const rad = ang * Math.PI / 180;
+        const x = CX + Math.cos(rad) * RINGS[p.key];
+        const y = CY + Math.sin(rad) * RINGS[p.key];
+
+        const pid = 'planet-' + p.key;
+        const old = document.getElementById(pid);
+        if (old) old.remove();
+
+        const pg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        pg.id = pid;
+
+        // 基础光晕
+        const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        glow.setAttribute('cx', x); glow.setAttribute('cy', y);
+        glow.setAttribute('r', p.size * 1.6);
+        glow.setAttribute('fill', p.color);
+        glow.setAttribute('opacity', '0.2');
+        pg.appendChild(glow);
+
+        if (p.key === 'saturn') {
+          // 土星 + 环
+          const ring = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+          ring.setAttribute('cx', x); ring.setAttribute('cy', y);
+          ring.setAttribute('rx', p.size * 1.55); ring.setAttribute('ry', 1.8);
+          ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#fde047'); ring.setAttribute('stroke-width', '1.4');
+          pg.appendChild(ring);
+
+          const core = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          core.setAttribute('cx', x); core.setAttribute('cy', y);
+          core.setAttribute('r', p.size); core.setAttribute('fill', p.color);
+          pg.appendChild(core);
+        } 
+        else if (p.key === 'jupiter') {
+          // 木星 + 云带
+          const core = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          core.setAttribute('cx', x); core.setAttribute('cy', y);
+          core.setAttribute('r', p.size); core.setAttribute('fill', p.color);
+          pg.appendChild(core);
+
+          const band = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+          band.setAttribute('cx', x); band.setAttribute('cy', y);
+          band.setAttribute('rx', p.size * 0.92); band.setAttribute('ry', 1.6);
+          band.setAttribute('fill', '#c2410f'); band.setAttribute('opacity', '0.35');
+          pg.appendChild(band);
+        } 
+        else {
+          const core = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          core.setAttribute('cx', x); core.setAttribute('cy', y);
+          core.setAttribute('r', p.size); core.setAttribute('fill', p.color);
+          pg.appendChild(core);
+        }
+
+        // 行星名字（单字）
+        const name = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        name.setAttribute('x', x + p.size + 6);
+        name.setAttribute('y', y + 3);
+        name.setAttribute('font-size', '10.5');
+        name.setAttribute('fill', p.color);
+        name.setAttribute('font-weight', '700');
+        name.textContent = p.char;
+        pg.appendChild(name);
+
+        g.appendChild(pg);
+      });
+
+      // 更新28星宿环（实时高亮当前月宿）
+      const moonAngForMansions = getMoonAngleOnDial(now);
+      drawLunarMansionsRing(moonAngForMansions);
     }
 
     // 旧的 updateDial 已彻底移除。
