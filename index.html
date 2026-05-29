@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>干支时钟 · 八字排盘</title>
+  <title>干支时历 · 八字排盘</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <!-- solarlunar 库：用于准确的农历 + 八字干支（推荐用于历史/生日查询） -->
@@ -95,6 +95,7 @@
 
     .ganzhi-main {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
     }
 
     /* 简单主题支持 */
@@ -115,8 +116,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-2">
       <div>
-        <h1 class="text-4xl font-bold tracking-tight title-font">干支时钟</h1>
-        <p class="text-slate-400 mt-1 text-sm">实时四柱 · 生日八字排盘 · 云端记录</p>
+        <h1 class="text-4xl font-bold tracking-tight title-font">干支时历</h1>
+        <p class="text-slate-400 mt-1 text-sm">实时四柱 · 生日八字排盘 · 动态星宿</p>
       </div>
       <div class="flex items-center gap-3">
         <!-- 简易主题切换 -->
@@ -154,11 +155,11 @@
         </div>
       </div>
 
-      <!-- 当前四柱 - 完整原版嵌入正中央（整体缩小50%） -->
-      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+      <!-- 当前四柱 - 嵌入公历时间框中央（字体原样，横排各自颜色，向右偏移） -->
+      <div class="absolute z-10" style="left: 53%; top: 50%; transform: translate(-50%, -50%); width: 108%;">
         <div style="transform: scale(0.5); transform-origin: center;">
-          <div class="mb-2 px-1">
-            <div class="flex items-center justify-between mb-3 px-2">
+          <div class="mb-1 px-1">
+            <div class="flex items-center justify-between mb-1 px-2">
               <div>
                 <span class="section-title text-slate-500">当前四柱</span>
                 <span class="ml-2 text-xs px-2 py-0.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-400">立春换年 · 节气定月</span>
@@ -167,45 +168,45 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-4 gap-2">
             <!-- Year Pillar -->
-            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-              <div class="pillar-label mb-3 flex items-center justify-between">
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-2.5">
+              <div class="pillar-label mb-1 flex items-center justify-between">
                 <span>年柱</span>
               </div>
               <div id="year-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-              <div id="year-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-              <div class="mt-3 text-xs text-slate-400" id="year-wuxing"></div>
+              <div id="year-detail" class="mt-1 flex items-center gap-1 text-sm"></div>
+              <div class="mt-1 text-xs text-slate-400" id="year-wuxing"></div>
             </div>
 
             <!-- Month Pillar -->
-            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-              <div class="pillar-label mb-3 flex items-center justify-between">
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-2.5">
+              <div class="pillar-label mb-1 flex items-center justify-between">
                 <span>月柱</span>
               </div>
               <div id="month-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-              <div id="month-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-              <div class="mt-3 text-xs text-slate-400" id="month-wuxing"></div>
+              <div id="month-detail" class="mt-1 flex items-center gap-1 text-sm"></div>
+              <div class="mt-1 text-xs text-slate-400" id="month-wuxing"></div>
             </div>
 
             <!-- Day Pillar -->
-            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-              <div class="pillar-label mb-3 flex items-center justify-between">
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-2.5">
+              <div class="pillar-label mb-1 flex items-center justify-between">
                 <span>日柱</span>
               </div>
               <div id="day-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-              <div id="day-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-              <div class="mt-3 text-xs text-slate-400" id="day-wuxing"></div>
+              <div id="day-detail" class="mt-1 flex items-center gap-1 text-sm"></div>
+              <div class="mt-1 text-xs text-slate-400" id="day-wuxing"></div>
             </div>
 
             <!-- Hour Pillar -->
-            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-5">
-              <div class="pillar-label mb-3 flex items-center justify-between">
+            <div class="pillar-card bg-slate-900 border border-slate-700 rounded-3xl p-2.5">
+              <div class="pillar-label mb-1 flex items-center justify-between">
                 <span>时柱</span>
               </div>
               <div id="hour-ganzhi" class="ganzhi-main ganzhi-text font-bold text-white"></div>
-              <div id="hour-detail" class="mt-2 flex items-center gap-2 text-sm"></div>
-              <div class="mt-3 text-xs text-slate-400" id="hour-wuxing"></div>
+              <div id="hour-detail" class="mt-1 flex items-center gap-1 text-sm"></div>
+              <div class="mt-1 text-xs text-slate-400" id="hour-wuxing"></div>
             </div>
           </div>
         </div>
@@ -286,10 +287,10 @@
         <div>
           <span class="section-title text-slate-400">生日八字排盘 · 大运流年</span>
 
-          <!-- 排盘记录入口（密码保护） -->
+          <!-- 入口（密码保护） -->
           <button onclick="openBaziRecordsWithPassword()" 
                   class="ml-3 px-1.5 py-0.5 text-xl hover:scale-125 transition-transform"
-                  title="查看排盘记录（需密码）">
+                  title="查看排盘（需密码）">
             ★
           </button>
         </div>
@@ -306,7 +307,7 @@
           </div>
 
           <div>
-            <label class="text-xs text-slate-500 block mb-1">备注 / 姓名（用于区分记录，可选）</label>
+            <label class="text-xs text-slate-500 block mb-1">备注 / 姓名（用于区分，可选）</label>
             <input id="bazi-name" type="text" placeholder="例如：张三 / 本人 / 女儿"
                    class="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm text-white w-full">
           </div>
@@ -331,7 +332,7 @@
           </button>
 
           <div class="text-[10px] text-slate-500">
-            支持精确到分钟 · 自动保存云端记录 · 含大运、流月、流日
+            支持精确到分钟 · 自动保存动态星宿 · 含大运、流月、流日
           </div>
         </div>
 
@@ -342,7 +343,7 @@
       </div>
     </div>
 
-    <!-- 排盘记录已改为密码保护模式，通过标题旁 📜 图标访问 -->
+    <!-- 已改为密码保护模式，通过标题旁 📜 图标访问 -->
 
     <!-- 密码验证 Modal -->
     <div id="bazi-password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70" onclick="closeBaziPasswordModal()">
@@ -350,7 +351,7 @@
            class="bg-slate-900 border border-slate-700 rounded-3xl w-[320px] p-6">
         <div class="text-center">
           <div class="text-3xl mb-3">🔒</div>
-          <div class="text-lg font-medium mb-4">查看排盘记录</div>
+          <div class="text-lg font-medium mb-4">查看排盘</div>
           <input id="bazi-password-input" type="password" placeholder="请输入密码"
                  class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-500"
                  onkeypress="if(event.key==='Enter') verifyBaziPassword()">
@@ -365,13 +366,13 @@
       </div>
     </div>
 
-    <!-- 排盘记录列表 Modal -->
+    <!-- 动态星宿列表 Modal -->
     <div id="bazi-records-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70" onclick="closeBaziRecordsModal()">
       <div onclick="event.stopImmediatePropagation()" 
            class="bg-slate-900 border border-slate-700 rounded-3xl w-[92%] max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         
         <div class="flex items-center justify-between px-5 py-3 border-b border-slate-700">
-          <div class="font-medium">排盘记录（云端）</div>
+          <div class="font-medium">动态星宿（云端）</div>
           <div class="flex gap-2 text-xs">
             <button onclick="exportBaziRecords()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">导出</button>
             <button onclick="importBaziRecords()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-xl">导入</button>
@@ -389,9 +390,7 @@
     <!-- Footer / Status -->
     <div class="mt-2 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500 px-1">
       <div class="flex flex-col md:flex-row md:items-center gap-x-4 gap-y-1">
-        <span>干支时钟 · 八字排盘（支持云端记录）</span>
-        <span class="hidden md:inline text-slate-600">|</span>
-        <span class="text-[10px]">排盘记录会自动保存至云端，仅工具所有者可通过密码查看</span>
+        <span>干支时历 · 八字排盘（支持动态星宿）</span>
       </div>
       <div class="flex items-center gap-4">
         <div onclick="copyCurrentGanzhi()" 
@@ -895,9 +894,11 @@
       const ganColor = getGanzhiColor(ganzhi.gan);
       const zhiColor = getGanzhiColor(ganzhi.zhi);
 
-      // 干支字符本身带五行颜色（统一输出）
+      // 干支字符本身带五行颜色（横排，各自颜色）
       container.innerHTML = `
-        <span style="color:${ganColor}; font-weight:700; font-size: 3.1rem; line-height:1;">${ganzhi.gan}</span><span style="color:${zhiColor}; font-weight:700; font-size: 3.1rem; line-height:1;">${ganzhi.zhi}</span>
+        <span style="white-space:nowrap;">
+          <span style="color:${ganColor}; font-weight:700; font-size: 3.1rem; line-height:1;">${ganzhi.gan}</span><span style="color:${zhiColor}; font-weight:700; font-size: 3.1rem; line-height:1;">${ganzhi.zhi}</span>
+        </span>
       `;
       
       const ganWx = WUXING[ganzhi.gan];
@@ -1074,9 +1075,10 @@
       createShichenDial();
       
       // 首次绘制最外圈天体轨道环 + 太阳/月球/行星 + 28星宿
-      drawSolarRingForBeijing(new Date());
-      lastSolarDateStr = new Date().toDateString();
-      updateSunAndMoonPositions(new Date());
+      const initAstro = new Date();
+      drawSolarRingForBeijing(initAstro);
+      lastSolarDateStr = initAstro.toDateString();
+      updateSunAndMoonPositions(initAstro);
 
       // 首次绘制28星宿环（默认使用当前实时位置）
       const initialMoonAng = getMoonAngleOnDial(new Date());
@@ -1234,6 +1236,14 @@
         <div class="text-[10px] text-slate-500 mt-1">来源：${sourceUsed} · 已含完整八字（含时柱）</div>
       `;
       document.getElementById('history-result').innerHTML = html;
+
+      // 同步天文显示（日出日落、太阳、月亮、五大行星）
+      const histDate = new Date(input.value);
+      if (!isNaN(histDate.getTime())) {
+        drawSolarRingForBeijing(histDate);
+        updateSunAndMoonPositions(histDate);
+        lastSolarDateStr = histDate.toDateString();
+      }
     }
 
     function queryHistoryToday() {
@@ -1266,7 +1276,7 @@
     const SUPABASE_CONFIG_KEY = 'bazi_supabase_config';
 
     function getSupabaseConfig() {
-      // 优先使用本地覆盖的配置（方便自己测试）
+      // 优先使用用户在设置中保存的配置
       try {
         const data = localStorage.getItem(SUPABASE_CONFIG_KEY);
         if (data) {
@@ -1277,10 +1287,12 @@
         }
       } catch (e) {}
 
-      // 默认配置（部署到 GitHub 后所有人排盘都会自动使用这个）
+      // 默认配置（仅使用公开的 anon key，用于普通保存记录）
+      // 注意：Service Role Key 不能在浏览器中使用（会 401），已移除硬编码
       return {
         url: "https://hkdkrrrcaxqmteimlmtu.supabase.co",
-        anonKey: "sb_publishable_QzDeAlaHhDKGGMXEMX8ddQ_28b4LDjO"
+        anonKey: "sb_publishable_QzDeAlaHhDKGGMXEMX8ddQ_28b4LDjO",
+        serviceKey: null
       };
     }
 
@@ -1324,7 +1336,8 @@
       }
     }
 
-    // 从 Supabase 获取所有记录（仅限主人查看）
+    // 从 Supabase 获取记录
+    // 注意：目前仅使用 anon key（公开可写）。Service Role Key 不能在浏览器中使用，会返回 401。
     async function loadRecordsFromSupabase() {
       const config = getSupabaseConfig();
       if (!config || !config.url || !config.anonKey) {
@@ -1343,11 +1356,17 @@
         );
 
         if (!response.ok) {
-          throw new Error(`获取失败: ${response.status}`);
+          const errorText = await response.text();
+          throw new Error(`获取失败 ${response.status}: ${errorText}`);
         }
 
         const records = await response.json();
-        return { success: true, records };
+        console.log(`[Supabase] 成功拉取 ${records.length} 条记录（使用 anon key）`);
+        return { 
+          success: true, 
+          records,
+          usingServiceKey: false
+        };
       } catch (err) {
         console.error('Supabase 拉取失败:', err);
         return { success: false, message: err.message, records: [] };
@@ -1464,25 +1483,32 @@
 
       alert(
         "【Supabase 云同步设置】\n\n" +
-        "当前工具已默认连接到所有者的云数据库。\n\n" +
-        "如果你是工具所有者，想换成自己的 Supabase 项目，可以在这里覆盖：\n" +
-        "1. 去 https://supabase.com 创建项目\n" +
-        "2. 复制 Project URL 和 Publishable key\n" +
-        "3. 在下方依次填入即可\n\n" +
-        "普通用户无需配置，排盘记录会自动保存。"
+        "• Publishable key（anon key）：用于保存记录（公开可写）。\n" +
+        "• Service Role Key（service_role）：**不能在浏览器中使用**，会 401 错误。\n\n" +
+        "目前工具仅使用 anon key 进行云端读写。\n" +
+        "如需查看全部记录的更安全方案，需要后端代理或 Edge Function。"
       );
 
-      const url = prompt('请输入 Supabase Project URL：', config.url || '');
+      const url = prompt('1. Project URL（https://xxx.supabase.co）：', config.url || '');
       if (url === null) return;
 
-      const anonKey = prompt('请输入 Publishable key：', config.anonKey || '');
+      const anonKey = prompt('2. Publishable / anon key（公开可写）：', config.anonKey || '');
+      if (anonKey === null) return;
+
+      const serviceKey = prompt(
+        '3. Service Role Key（强烈不建议在浏览器使用）\n\n' +
+        '此密钥只能用于服务器环境，在浏览器中会返回 401 错误。\n' +
+        '留空即可（当前版本不支持浏览器端使用 service key）。',
+        ''
+      );
 
       saveSupabaseConfig({
         url: url.trim(),
-        anonKey: anonKey.trim()
+        anonKey: anonKey.trim(),
+        serviceKey: serviceKey ? serviceKey.trim() : null
       });
 
-      alert('Supabase 配置已保存！');
+      alert('Supabase 配置已保存！\n（当前版本 Service Role Key 在浏览器中无法使用）');
       renderBaziRecordsModal();
     }
 
@@ -1506,7 +1532,7 @@
         config.gistId || ''
       );
 
-      const autoSync = confirm('是否在每次新增排盘记录时自动推送到 GitHub？\n（推荐开启）');
+      const autoSync = confirm('是否在每次新增排盘时自动推送到 GitHub？\n（推荐开启）');
 
       const newConfig = {
         token: token.trim(),
@@ -1522,7 +1548,7 @@
     async function manualSyncToGist() {
       const records = getBaziRecords();
       if (records.length === 0) {
-        alert('当前没有记录可同步');
+        alert('当前没有可同步');
         return;
       }
       const result = await syncToGitHubGist(records);
@@ -1531,7 +1557,7 @@
     }
 
     async function manualLoadFromGist() {
-      if (!confirm('从 GitHub 拉取记录会覆盖当前本地记录，确定继续吗？')) return;
+      if (!confirm('从 GitHub 拉取会覆盖当前本地，确定继续吗？')) return;
       const result = await loadFromGitHubGist();
       alert(result.message);
       if (result.success) {
@@ -1627,7 +1653,7 @@
     function exportBaziRecords() {
       const records = getBaziRecords();
       if (records.length === 0) {
-        alert('没有可导出的记录');
+        alert('没有可导出');
         return;
       }
       const dataStr = JSON.stringify(records, null, 2);
@@ -1657,7 +1683,7 @@
             [...existing, ...imported].forEach(r => map.set(r.id, r));
             const merged = Array.from(map.values()).sort((a,b) => b.timestamp - a.timestamp);
             localStorage.setItem(BAZI_RECORDS_KEY, JSON.stringify(merged));
-            alert(`成功导入 ${imported.length} 条记录`);
+            alert(`成功导入 ${imported.length} 条`);
             renderBaziRecordsModal();
           } catch (err) {
             alert('导入失败：' + err.message);
@@ -1708,18 +1734,31 @@
       const modal = document.getElementById('bazi-records-modal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      renderBaziRecordsModal();
 
-      // 密码正确后，尝试从 Supabase 加载云端记录（如果已配置）
+      // 密码验证通过后尝试从 Supabase 拉取记录（使用 anon key）
       const supabaseConfig = getSupabaseConfig();
-      if (supabaseConfig && supabaseConfig.url && supabaseConfig.anonKey) {
+      if (supabaseConfig && supabaseConfig.url) {
         loadRecordsFromSupabase().then(result => {
-          if (result.success && result.records && result.records.length > 0) {
-            // 可以在这里把云端记录和本地记录合并显示，或者单独显示
-            console.log(`从 Supabase 加载了 ${result.records.length} 条云端记录`);
-            // 简单处理：把云端记录也渲染出来（可后续优化）
+          console.log('[BaziRecords] Supabase 返回结果:', result);
+
+          if (result.success && Array.isArray(result.records)) {
+            renderBaziRecordsModal(result.records, false);
+            return;
           }
+
+          // 失败时显示本地 + 错误提示
+          renderBaziRecordsModal();
+          const container = document.getElementById('bazi-records-modal-content');
+          if (container) {
+            container.insertAdjacentHTML('afterbegin', 
+              `<div class="mb-3 p-2 bg-red-900/30 text-red-400 text-xs rounded">云端加载失败：${result.message || '未知错误'}（当前显示本地）</div>`);
+          }
+        }).catch(err => {
+          console.error('[BaziRecords] 云端加载异常:', err);
+          renderBaziRecordsModal();
         });
+      } else {
+        renderBaziRecordsModal();
       }
     }
 
@@ -1729,30 +1768,69 @@
       modal.classList.add('hidden');
     }
 
-    function renderBaziRecordsModal() {
+    // 手动重新从 Supabase 拉取记录
+    function reloadCloudBaziRecords() {
+      const container = document.getElementById('bazi-records-modal-content');
+      if (container) {
+        container.innerHTML = '<div class="text-center text-slate-400 py-8">正在从云端重新加载...</div>';
+      }
+      loadRecordsFromSupabase().then(result => {
+        if (result.success && Array.isArray(result.records)) {
+          renderBaziRecordsModal(result.records, false);
+        } else {
+          alert('重新加载失败：' + (result.message || '未知错误'));
+          renderBaziRecordsModal();
+        }
+      });
+    }
+
+    function renderBaziRecordsModal(cloudRecords = null, usingServiceKey = false) {
       const container = document.getElementById('bazi-records-modal-content');
       if (!container) return;
 
-      const records = getBaziRecords();
-      const gistConfig = getGistSyncConfig() || {};
+      // 优先使用传入的动态星宿记录（密码验证后拉取的 Supabase 数据）
+      const rawRecords = Array.isArray(cloudRecords) && cloudRecords.length > 0 
+        ? cloudRecords 
+        : getBaziRecords();
+
+      const isCloudView = Array.isArray(cloudRecords) && cloudRecords.length > 0;
+
+      // 统一字段格式（本地用 camelCase，云端用 snake_case）
+      const records = rawRecords.map(r => {
+        if (isCloudView) {
+          return {
+            id: r.id || r.created_at,
+            name: r.name || '',
+            birthDatetime: r.birth_datetime || r.birthDatetime,
+            gender: r.gender,
+            timestamp: r.created_at ? new Date(r.created_at).getTime() : (r.timestamp || Date.now())
+          };
+        }
+        return r;
+      });
 
       let html = `
         <div class="mb-4 p-3 bg-slate-800 rounded-xl">
           <div class="flex items-center justify-between mb-2">
-            <div class="font-medium text-sm">云端同步设置</div>
+            <div class="font-medium text-sm">
+              ${isCloudView ? `动态星宿（Supabase） - 共 ${records.length} 条` : '本地 + 云端同步设置'}
+            </div>
             <div class="flex gap-2">
+              ${isCloudView ? `<button onclick="reloadCloudBaziRecords()" class="text-xs px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded">重新加载云端</button>` : ''}
               <button onclick="openSupabaseSettings()" class="text-xs px-3 py-1 bg-purple-700 hover:bg-purple-600 rounded">Supabase</button>
               <button onclick="openGistSyncSettings()" class="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded">GitHub Gist</button>
             </div>
           </div>
           <div class="text-xs text-slate-400">
-            记录默认自动保存至工具所有者的云端数据库。只有输入密码后才能查看全部历史记录。
+            ${isCloudView 
+              ? '来自 Supabase 云端（使用公开 anon key，可能受 RLS 限制）' 
+              : '自动保存到云端。输入密码可查看。'}
           </div>
         </div>
       `;
 
       if (records.length === 0) {
-        html += `<div class="text-center text-slate-500 py-8">暂无排盘记录<br><span class="text-[10px]">（排盘后会自动保存至云端）</span></div>`;
+        html += `<div class="text-center text-slate-500 py-8">暂无<br><span class="text-[10px]">（排盘后自动保存）</span></div>`;
         container.innerHTML = html;
         return;
       }
@@ -1799,8 +1877,9 @@
             <td class="py-2">
               <button onclick='viewBaziRecord(${JSON.stringify(r)})' 
                       class="text-emerald-400 hover:text-emerald-300 text-xs mr-2">查看</button>
-              <button onclick="deleteBaziRecordAndRefresh('${r.id}')" 
-                      class="text-red-400 hover:text-red-300 text-xs">删除</button>
+              ${isCloudView 
+                ? `<span class="text-[10px] text-slate-500" title="动态星宿删除需在Supabase后台操作">删除(云)</span>` 
+                : `<button onclick="deleteBaziRecordAndRefresh('${r.id}')" class="text-red-400 hover:text-red-300 text-xs">删除</button>`}
             </td>
           </tr>
         `;
@@ -1814,13 +1893,13 @@
     console.log('%c[Bazi Records] renderBaziRecordsModal function loaded successfully', 'color:#22c55e');
 
     function deleteBaziRecordAndRefresh(id) {
-      if (!confirm('确定要删除这条记录吗？')) return;
+      if (!confirm('确定要删除这条吗？')) return;
       deleteBaziRecord(id);
       renderBaziRecordsModal();
     }
 
     function clearAllBaziRecords() {
-      if (!confirm('确定要清空所有排盘记录吗？此操作不可恢复')) return;
+      if (!confirm('确定要清空所有排盘吗？此操作不可恢复')) return;
       localStorage.removeItem(BAZI_RECORDS_KEY);
       renderBaziRecordsModal();
     }
@@ -2836,19 +2915,26 @@
           lastShichen = idx;
         }
 
-        // 最外天体轨道环（民用时间）
-        const civilNow = new Date();
-        const civilDateStr = civilNow.toDateString();
-        if (civilDateStr !== lastSolarDateStr) {
-          lastSolarDateStr = civilDateStr;
-          drawSolarRingForBeijing(civilNow);
-          // 重新绘制28星宿（因为 innerHTML 清空了）
-          const moonAng = getMoonAngleOnDial(civilNow);
+        // 最外天体轨道环 + 太阳月亮行星（支持历史查询日期）
+        const civilNow = new Date();  // 仅用于主表盘时辰
+        let astroNow = new Date();
+        const histInput = document.getElementById('history-datetime');
+        if (histInput && histInput.value) {
+          const parsed = new Date(histInput.value);
+          if (!isNaN(parsed.getTime())) astroNow = parsed;
+        }
+
+        const astroDateStr = astroNow.toDateString();
+        if (astroDateStr !== lastSolarDateStr) {
+          lastSolarDateStr = astroDateStr;
+          drawSolarRingForBeijing(astroNow);
+          // 重新绘制28星宿
+          const moonAng = getMoonAngleOnDial(astroNow);
           drawLunarMansionsRing(moonAng);
         }
 
-        // 实时更新太阳 + 月球 + 行星位置
-        updateSunAndMoonPositions(civilNow);
+        // 实时更新太阳 + 月球 + 行星位置（使用 astro 时间）
+        updateSunAndMoonPositions(astroNow);
 
         dialRAF = requestAnimationFrame(animate);
       }
